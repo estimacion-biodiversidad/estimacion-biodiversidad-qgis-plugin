@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/estimacion_biodiversidad" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
