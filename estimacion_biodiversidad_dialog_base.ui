@@ -50,6 +50,42 @@
     <attribute name="title">
      <string>Configuración de la base de datos</string>
     </attribute>
+    <widget class="QToolButton" name="tb_outDB">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>180</y>
+       <width>25</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lb_outDB">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>180</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Base de datos de salida</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_outBD">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>180</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>
