@@ -32,8 +32,8 @@ from qgis.core import *
 from .estimacion_biodiversidad_dialog import EstimacionBiodiversidadDialog
 import os.path
 
-# Hay que ver si hay que quitar esto. Se puso solo para pruebas.
-from qgis.utils import iface
+from osgeo import ogr
+
 
 class EstimacionBiodiversidad:
     """QGIS Plugin Implementation."""
@@ -185,16 +185,40 @@ class EstimacionBiodiversidad:
     def setVariables(self):   
         self.outDB = self.dlg.le_outDB.text()
         
-    def createDB(self):
-        # taxon_occurrence table
+    def createDB_old(self):
+        # TABLE CREATION
+        
+        # Taxon table
+        taxonDef  = "field=taxon_id:int?"
+        taxonDef += "field=scientific_name:string"
+
+        taxonLayer = QgsVectorLayer(taxonDef, 'taxon', "memory")    
+
+        options = QgsVectorFileWriter.SaveVectorOptions()
+        options.actionOnExistingFile = QgsVectorFileWriter.AppendToLayerNoNewFields 
+        options.driverName = 'GPKG'
+        options.layerName  = 'taxon'
+        
+        # add test features
+        provider = taxonLayer.dataProvider()
+        feat = QgsFeature()
+        feat.setAttributes([1, 'Ara ambiguus'])
+        provider.addFeatures([feat])
+        
+        write_result, error_message = QgsVectorFileWriter.writeAsVectorFormat(taxonLayer, self.outDB, options)
+        # self.assertEqual(write_result, QgsVectorFileWriter.NoError, error_message)
+
+        
+        # Taxon_occurrence table
         taxon_occurrenceDef  =  "Point?"
         taxon_occurrenceDef += "crs=epsg:4326&"
-        taxon_occurrenceDef += "field=occurrence_id:int&"
+        taxon_occurrenceDef += "field=taxon_occurrence_id:int&"
         taxon_occurrenceDef += "field=taxon_id:int"
 
         taxon_occurrenceLayer = QgsVectorLayer(taxon_occurrenceDef, 'taxon_occurrence', "memory")    
 
         options = QgsVectorFileWriter.SaveVectorOptions()
+        options.actionOnExistingFile = QgsVectorFileWriter.AppendToLayerNoNewFields 
         options.driverName = 'GPKG'
         options.layerName  = 'taxon_occurrence'
         
@@ -207,6 +231,95 @@ class EstimacionBiodiversidad:
         
         write_result, error_message = QgsVectorFileWriter.writeAsVectorFormat(taxon_occurrenceLayer, self.outDB, options)
         # self.assertEqual(write_result, QgsVectorFileWriter.NoError, error_message)
+
+        
+        # Taxon_area table
+        taxon_areaDef  =  "Polygon?"
+        taxon_areaDef += "crs=epsg:4326&"
+        taxon_areaDef += "field=taxon_area_id:int&"
+        taxon_areaDef += "field=taxon_id:int"
+
+        taxon_areaLayer = QgsVectorLayer(taxon_areaDef, 'taxon_area', "memory")    
+
+        options = QgsVectorFileWriter.SaveVectorOptions()
+        options.actionOnExistingFile = QgsVectorFileWriter.AppendToLayerNoNewFields 
+        options.driverName = 'GPKG'
+        options.layerName  = 'taxon_area'
+        
+        # add test features
+        provider = taxon_areaLayer.dataProvider()
+        feat = QgsFeature()
+        feat.setGeometry(QgsGeometry.fromPolygonXY([[QgsPointXY(-84, 10), QgsPointXY(-84, 9.8), QgsPointXY(-83.8, 10)]]))
+        feat.setAttributes([1, 1])
+        provider.addFeatures([feat])
+        
+        write_result, error_message = QgsVectorFileWriter.writeAsVectorFormat(taxon_areaLayer, self.outDB, options)
+        # self.assertEqual(write_result, QgsVectorFileWriter.NoError, error_message)
+
+        
+        
+    def createDB(self):
+        # Database creation
+        if not os.path.exists(self.outDB):
+            print("Creating " + self.outDB + "...")
+
+            drv = ogr.GetDriverByName('GPKG')
+            if drv is None:
+                raise Exception('Could not find GPKG driver')
+                
+            dsOut = drv.CreateDataSource(self.outDB)
+            if dsOut is None:
+               raise Exception('Could not create ' + self.outDB)
+            print(self.outDB + " created!\n")
+        else:
+            print("Opening " + self.outDB + "...")
+            dsOut = ogr.Open(self.outDB, 1)
+            if dsOut is None:
+                raise Exception('Could not open ' + self.outDB)
+            else:
+                print(self.outDB + " opened!\n")
+
+        # taxon table creation
+        print("Creating taxon table...")
+        query  =  "CREATE TABLE taxon ("
+        query +=  "taxon_id         INTEGER,"
+        query +=  "scientific_name  TEXT,"
+        query +=  "kingdom_id       INTEGER,"
+        query +=  "phylum_id        INTEGER,"
+        query +=  "class_id         INTEGER,"
+        query +=  "order_id         INTEGER,"
+        query +=  "family_id        INTEGER,"
+        query +=  "genus_id         INTEGER,"
+        query +=  "taxon_rank_id    INTEGER,"
+        query +=  "parent_name_id   INTEGER,"                 
+        query +=  "accepted_name_id INTEGER"
+        query +=  ")"
+        print(query)             
+        dsOut.ExecuteSQL(query)
+        print("Text and numbers columns of the taxon table have been created!\n")             
+
+        query = "INSERT INTO taxon (taxon_id, scientific_name) VALUES (1, 'Animalia')"
+        dsOut.ExecuteSQL(query)
+        
+        
+        # taxon_occurrence table creation
+        print("Creating taxon_occurrence table...")
+        query  =  "CREATE TABLE taxon_occurrence ("
+        query +=  "taxon_occurrence_id INTEGER,"
+        query +=  "taxon_id            INTEGER"
+        query +=  ")"
+        print(query)             
+        dsOut.ExecuteSQL(query)
+        print("Text and numbers columns of the taxon_occurrence table have been created!\n")             
+        query = "SELECT AddGeometryColumn('taxon_occurrence', 'GEOMETRY', 4326, 'POINT', 'XY')"
+        print(query)     
+        dsOut.ExecuteSQL(query)
+        print("Spatial columns of the taxon_occurrence table have been created!\n")     
+
+        #query = "INSERT INTO taxon_occurrence (taxon_occurrence_id, taxon_id, the) VALUES (1, 'Animalia')"
+        #dsOut.ExecuteSQL(query)        
+        
+        dsOut = None
         
         
     def unload(self):
