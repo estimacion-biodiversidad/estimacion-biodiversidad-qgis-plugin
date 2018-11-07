@@ -21,16 +21,19 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QAction, QFileDialog
 
 # Initialize Qt resources from file resources.py
 from .resources import *
+from qgis.core import *
 # Import the code for the dialog
 from .estimacion_biodiversidad_dialog import EstimacionBiodiversidadDialog
 import os.path
 
+# Hay que ver si hay que quitar esto. Se puso solo para pruebas.
+from qgis.utils import iface
 
 class EstimacionBiodiversidad:
     """QGIS Plugin Implementation."""
@@ -169,8 +172,34 @@ class EstimacionBiodiversidad:
             text=self.tr(u'Estimación de la biodiversidad'),
             callback=self.run,
             parent=self.iface.mainWindow())
+        self.dlg.tb_outDB.clicked.connect(self.saveDB)
 
+    def saveDB(self):
+        outFile = str(QFileDialog.getSaveFileName(caption="Guardar GeoPackage como",
+                                                  filter="GeoPackage (*.gpkg)")[0])
+        self.setDBLineEdit(outFile)            
 
+    def setDBLineEdit(self, text):
+	    self.dlg.le_outDB.setText(text)        
+        
+    def setVariables(self):   
+        self.outDB = self.dlg.le_outDB.text()
+        
+    def createDB(self):
+        taxon_occurrenceDef  =  "Point?"
+        taxon_occurrenceDef += "crs=epsg:4326&"
+        taxon_occurrenceDef += "field=occurrence_id:int&"
+        taxon_occurrenceDef += "field=taxon_id:int"
+
+        layer = QgsVectorLayer(taxon_occurrenceDef, 'taxon_occurrence', "memory")    
+
+        options = QgsVectorFileWriter.SaveVectorOptions()
+        options.driverName = 'GPKG'
+        options.layerName = 'taxon_occurrence'
+        
+        write_result, error_message = QgsVectorFileWriter.writeAsVectorFormat(layer, self.outDB, options)
+        
+        
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -190,6 +219,5 @@ class EstimacionBiodiversidad:
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            pass
+            self.setVariables()
+            self.createDB()

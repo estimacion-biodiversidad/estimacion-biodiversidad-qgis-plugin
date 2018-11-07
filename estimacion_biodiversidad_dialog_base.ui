@@ -76,7 +76,7 @@
       <string>Base de datos de salida</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="le_outBD">
+    <widget class="QLineEdit" name="le_outDB">
      <property name="geometry">
       <rect>
        <x>230</x>
