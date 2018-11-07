@@ -186,18 +186,27 @@ class EstimacionBiodiversidad:
         self.outDB = self.dlg.le_outDB.text()
         
     def createDB(self):
+        # taxon_occurrence table
         taxon_occurrenceDef  =  "Point?"
         taxon_occurrenceDef += "crs=epsg:4326&"
         taxon_occurrenceDef += "field=occurrence_id:int&"
         taxon_occurrenceDef += "field=taxon_id:int"
 
-        layer = QgsVectorLayer(taxon_occurrenceDef, 'taxon_occurrence', "memory")    
+        taxon_occurrenceLayer = QgsVectorLayer(taxon_occurrenceDef, 'taxon_occurrence', "memory")    
 
         options = QgsVectorFileWriter.SaveVectorOptions()
         options.driverName = 'GPKG'
-        options.layerName = 'taxon_occurrence'
+        options.layerName  = 'taxon_occurrence'
         
-        write_result, error_message = QgsVectorFileWriter.writeAsVectorFormat(layer, self.outDB, options)
+        # add test features
+        provider = taxon_occurrenceLayer.dataProvider()
+        feat = QgsFeature()
+        feat.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(-84, 10)))
+        feat.setAttributes([1, 1])
+        provider.addFeatures([feat])
+        
+        write_result, error_message = QgsVectorFileWriter.writeAsVectorFormat(taxon_occurrenceLayer, self.outDB, options)
+        # self.assertEqual(write_result, QgsVectorFileWriter.NoError, error_message)
         
         
     def unload(self):
