@@ -53,7 +53,7 @@
     <widget class="QToolButton" name="tb_outDB">
      <property name="geometry">
       <rect>
-       <x>400</x>
+       <x>580</x>
        <y>180</y>
        <width>25</width>
        <height>19</height>
@@ -73,17 +73,53 @@
       </rect>
      </property>
      <property name="text">
-      <string>Base de datos de salida</string>
+      <string>Base de datos</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="le_outDB">
      <property name="geometry">
       <rect>
-       <x>230</x>
+       <x>180</x>
        <y>180</y>
-       <width>141</width>
+       <width>381</width>
        <height>20</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lb_inOccurrenceFile">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>230</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Registros de presencia</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_inOccurrenceFile">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>230</y>
+       <width>381</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="tb_inOccurrenceFile">
+     <property name="geometry">
+      <rect>
+       <x>580</x>
+       <y>230</y>
+       <width>25</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>...</string>
      </property>
     </widget>
    </widget>

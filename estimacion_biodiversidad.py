@@ -173,6 +173,7 @@ class EstimacionBiodiversidad:
             callback=self.run,
             parent=self.iface.mainWindow())
         self.dlg.tb_outDB.clicked.connect(self.saveDB)
+        self.dlg.tb_inOccurrenceFile.clicked.connect(self.openInOccurrenceFile)
 
     def saveDB(self):
         outFile = str(QFileDialog.getSaveFileName(caption="Guardar GeoPackage como",
@@ -182,8 +183,17 @@ class EstimacionBiodiversidad:
     def setDBLineEdit(self, text):
 	    self.dlg.le_outDB.setText(text)        
         
+    def openInOccurrenceFile(self):
+        inOccurrenceFile = str(QFileDialog.getOpenFileName(caption="Abrir shapefile", 
+                                                 filter="Shapefiles (*.shp)")[0])       
+        self.setInOccurrenceFileLineEdit(inOccurrenceFile)                                                             
+                                                 
+    def setInOccurrenceFileLineEdit(self, text):
+	    self.dlg.le_inOccurrenceFile.setText(text)        
+        
     def setVariables(self):   
-        self.outDB = self.dlg.le_outDB.text()
+        self.outDB            = self.dlg.le_outDB.text()
+        self.inOccurrenceFile = self.dlg.le_inOccurrenceFile.text()
         
     def createDB_old(self):
         # TABLE CREATION
@@ -256,8 +266,6 @@ class EstimacionBiodiversidad:
         write_result, error_message = QgsVectorFileWriter.writeAsVectorFormat(taxon_areaLayer, self.outDB, options)
         # self.assertEqual(write_result, QgsVectorFileWriter.NoError, error_message)
 
-        
-        
     def createDB(self):
         # Database creation
         if not os.path.exists(self.outDB):
