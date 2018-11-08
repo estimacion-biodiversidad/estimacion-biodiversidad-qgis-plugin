@@ -172,15 +172,15 @@ class EstimacionBiodiversidad:
             text=self.tr(u'Estimación de la biodiversidad'),
             callback=self.run,
             parent=self.iface.mainWindow())
-        self.dlg.tb_outDB.clicked.connect(self.saveDB)
+        self.dlg.tb_outDB.clicked.connect(self.saveOutDB)
         self.dlg.tb_inOccurrenceFile.clicked.connect(self.openInOccurrenceFile)
 
-    def saveDB(self):
-        outFile = str(QFileDialog.getSaveFileName(caption="Guardar GeoPackage como",
-                                                  filter="GeoPackage (*.gpkg)")[0])
-        self.setDBLineEdit(outFile)            
+    def saveOutDB(self):
+        outDB = str(QFileDialog.getSaveFileName(caption="Guardar base de datos SQLite como",
+                                                  filter="SQLite (*.sqlite)")[0])
+        self.setOutDBLineEdit(outDB)            
 
-    def setDBLineEdit(self, text):
+    def setOutDBLineEdit(self, text):
 	    self.dlg.le_outDB.setText(text)        
         
     def openInOccurrenceFile(self):
@@ -271,11 +271,11 @@ class EstimacionBiodiversidad:
         if not os.path.exists(self.outDB):
             print("Creating " + self.outDB + "...")
 
-            drv = ogr.GetDriverByName('GPKG')
+            drv = ogr.GetDriverByName('SQLite')
             if drv is None:
-                raise Exception('Could not find GPKG driver')
+                raise Exception('Could not find driver')
                 
-            dsOut = drv.CreateDataSource(self.outDB)
+            dsOut = drv.CreateDataSource(self.outDB, ['SPATIALITE=YES'])
             if dsOut is None:
                raise Exception('Could not create ' + self.outDB)
             print(self.outDB + " created!\n")
@@ -304,12 +304,17 @@ class EstimacionBiodiversidad:
         query +=  ")"
         print(query)             
         dsOut.ExecuteSQL(query)
-        print("Text and numbers columns of the taxon table have been created!\n")             
+        print("Text and numbers columns of the taxon table have been created!\n")   
+        # THIS IS WEIRD...IT SEEMS WE NEED TO DEFINE A SPATIAL COLUMN IN ORDER TO CREATE THE TABLE
+        query = "SELECT AddGeometryColumn('taxon', 'GEOMETRY', 4326, 'POINT', 'XY')"
+        print(query)     
+        dsOut.ExecuteSQL(query)
+        print("Spatial columns of the taxon table have been created!\n")     
 
         query = "INSERT INTO taxon (taxon_id, scientific_name) VALUES (1, 'Animalia')"
         dsOut.ExecuteSQL(query)
         
-        
+                
         # taxon_occurrence table creation
         print("Creating taxon_occurrence table...")
         query  =  "CREATE TABLE taxon_occurrence ("
