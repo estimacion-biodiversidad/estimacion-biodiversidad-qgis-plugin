@@ -369,7 +369,8 @@ class EstimacionBiodiversidad:
         query +=  "layer_id                 INTEGER,"        
         query +=  "name                     TEXT,"
         query +=  "area                     INTEGER,"        
-        query +=  "spp_richness_occurrences INTEGER"                
+        query +=  "spp_richness_occurrences INTEGER,"                
+        query +=  "occurrences_spp_names    TEXT"                        
         query +=  ")"
         print(query)             
         dsOut.ExecuteSQL(query)
@@ -404,7 +405,7 @@ class EstimacionBiodiversidad:
 
                 
         # Species richness calculation
-        QgsMessageLog.logMessage("Calculating species richness..", 'EstimacionBiodiversidad', level=Qgis.Info)
+        QgsMessageLog.logMessage("Calculating species richness...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "UPDATE thematic_area"
         query +=  "    SET spp_richness_occurrences = ("
         query +=  "        SELECT Count(DISTINCT taxon_id)"        
@@ -414,6 +415,17 @@ class EstimacionBiodiversidad:
         print(query)             
         dsOut.ExecuteSQL(query)
 
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET occurrences_spp_names = ("
+        query +=  "        SELECT Group_concat(DISTINCT scientific_name)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE ST_Contains(thematic_area.Geometry, o.Geometry)"        
+        query +=  "    )"                
+        print(query)             
+        dsOut.ExecuteSQL(query)        
+        
         
         dsOut = None
         
