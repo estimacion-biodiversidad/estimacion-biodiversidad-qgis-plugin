@@ -345,7 +345,6 @@ class EstimacionBiodiversidad:
         #query = "INSERT INTO taxon_occurrence (taxon_occurrence_id, taxon_id, GEOMETRY) VALUES(1, 1, ST_GeomFromText('POINT(-84 10)', 4326));"
         #dsOut.ExecuteSQL(query)        
         
-        
         shapefile = self.inOccurrenceFile
         driver = ogr.GetDriverByName("ESRI Shapefile")
         dataSource = driver.Open(shapefile, 0)
@@ -353,15 +352,54 @@ class EstimacionBiodiversidad:
 
         i = 0
         for feature in layer:
-            i = i + 1
-            if i > 1000:
-                break
             QgsMessageLog.logMessage(str(i), 'EstimacionBiodiversidad', level=Qgis.Info)
-            #QgsMessageLog.logMessage(str(feature.GetField("taxon_id")), 'EstimacionBiodiversidad', level=Qgis.Info)
             query = "INSERT INTO taxon_occurrence (taxon_occurrence_id, taxon_id, GEOMETRY) VALUES({}, {}, ST_GeomFromText('POINT ({} {})', 4326));".format(str(feature.GetField("taxon_occu")), str(feature.GetField("taxon_id")), str(feature.GetField("decimalLon")), str(feature.GetField("decimalLat")))
             QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
             dsOut.ExecuteSQL(query)        
-            
+            i = i + 1
+            if i >= 1000:
+                break
+
+
+        # thematic_area table creation
+        print("Creating thematic_area table...")
+        query  =  "CREATE TABLE thematic_area ("
+        query +=  "thematic_area_id         INTEGER,"
+        query +=  "layer_id                 INTEGER,"        
+        query +=  "name                     TEXT,"
+        query +=  "area                     INTEGER,"        
+        query +=  "spp_richness_occurrences INTEGER"                
+        query +=  ")"
+        print(query)             
+        dsOut.ExecuteSQL(query)
+        print("Text and numbers columns of the thematic_area table have been created!\n")             
+        query = "SELECT AddGeometryColumn('thematic_area', 'GEOMETRY', 4326, 'POLYGON', 'XY')"
+        print(query)     
+        dsOut.ExecuteSQL(query)
+        print("Spatial columns of the thematic_area table have been created!\n")     
+
+        # test
+        #QgsMessageLog.logMessage("INSERT INTO taxon_occurrence (taxon_occurrence_id, taxon_id, GEOMETRY) VALUES(1, 1, ST_GeomFromText('POINT(-84 10)', 4326))", 'EstimacionBiodiversidad', level=Qgis.Info)
+        #query = "INSERT INTO taxon_occurrence (taxon_occurrence_id, taxon_id, GEOMETRY) VALUES(1, 1, ST_GeomFromText('POINT(-84 10)', 4326));"
+        #dsOut.ExecuteSQL(query)        
+        
+        shapefile = self.inThematicAreaFile
+        driver = ogr.GetDriverByName("ESRI Shapefile")
+        dataSource = driver.Open(shapefile, 0)
+        layer = dataSource.GetLayer()
+
+        i = 0
+        for feature in layer:
+            #QgsMessageLog.logMessage(str(i), 'EstimacionBiodiversidad', level=Qgis.Info)
+            geometry    = feature.geometry()
+            geometryWKT = geometry.ExportToWkt()
+            #QgsMessageLog.logMessage(geometryWKT, 'EstimacionBiodiversidad', level=Qgis.Info)
+            query = "INSERT INTO thematic_area (thematic_area_id, layer_id, name, area, spp_richness_occurrences, GEOMETRY) VALUES({}, 1, '{}', 0, 0, ST_GeomFromText('{}', 4326));".format(str(i), str(feature.GetField("contrato")), geometryWKT)
+            QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+            dsOut.ExecuteSQL(query)        
+            i = i + 1
+            if i >= 1000:
+                break                
         
         
         dsOut = None
