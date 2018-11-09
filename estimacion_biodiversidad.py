@@ -330,7 +330,8 @@ class EstimacionBiodiversidad:
         print("Creating taxon_occurrence table...")
         query  =  "CREATE TABLE taxon_occurrence ("
         query +=  "taxon_occurrence_id INTEGER,"
-        query +=  "taxon_id            INTEGER"
+        query +=  "taxon_id            INTEGER,"
+        query +=  "scientific_name     TEXT"        
         query +=  ")"
         print(query)             
         dsOut.ExecuteSQL(query)
@@ -353,7 +354,7 @@ class EstimacionBiodiversidad:
         i = 0
         for feature in layer:
             QgsMessageLog.logMessage(str(i), 'EstimacionBiodiversidad', level=Qgis.Info)
-            query = "INSERT INTO taxon_occurrence (taxon_occurrence_id, taxon_id, GEOMETRY) VALUES({}, {}, ST_GeomFromText('POINT ({} {})', 4326));".format(str(feature.GetField("taxon_occu")), str(feature.GetField("taxon_id")), str(feature.GetField("decimalLon")), str(feature.GetField("decimalLat")))
+            query = "INSERT INTO taxon_occurrence (taxon_occurrence_id, taxon_id, scientific_name, GEOMETRY) VALUES({}, {}, '{}', ST_GeomFromText('POINT ({} {})', 4326));".format(str(feature.GetField("gbifID")), str(feature.GetField("speciesKey")), str(feature.GetField("species")), str(feature.GetField("decimalLon")), str(feature.GetField("decimalLat")))
             QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
             dsOut.ExecuteSQL(query)        
             i = i + 1
@@ -399,8 +400,20 @@ class EstimacionBiodiversidad:
             dsOut.ExecuteSQL(query)        
             i = i + 1
             if i >= 1000:
-                break                
-        
+                break        
+
+                
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating species richness..", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_richness_occurrences = ("
+        query +=  "        SELECT Count(DISTINCT taxon_id)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE ST_Contains(thematic_area.Geometry, o.Geometry)"        
+        query +=  "    )"                
+        print(query)             
+        dsOut.ExecuteSQL(query)
+
         
         dsOut = None
         
