@@ -23,7 +23,7 @@
 """
 from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction, QFileDialog
+from PyQt5.QtWidgets import QAction, QFileDialog, QMessageBox
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -174,7 +174,9 @@ class EstimacionBiodiversidad:
             parent=self.iface.mainWindow())
         self.dlg.tb_outDB.clicked.connect(self.saveOutDB)
         self.dlg.tb_inOccurrenceFile.clicked.connect(self.openInOccurrenceFile)
-        self.dlg.tb_inThematicAreaFile.clicked.connect(self.openInThematicAreaFile)        
+        self.dlg.tb_inThematicAreaFile.clicked.connect(self.openInThematicAreaFile)       
+
+        self.dlg.pb_createDB.clicked.connect(self.createDB)               
 
     def saveOutDB(self):
         outDB = str(QFileDialog.getSaveFileName(caption="Guardar base de datos SQLite como",
@@ -276,7 +278,7 @@ class EstimacionBiodiversidad:
         write_result, error_message = QgsVectorFileWriter.writeAsVectorFormat(taxon_areaLayer, self.outDB, options)
         # self.assertEqual(write_result, QgsVectorFileWriter.NoError, error_message)
 
-    def createDB(self):
+    def createDB_old2(self):
         # Database creation
         if not os.path.exists(self.outDB):
             print("Creating " + self.outDB + "...")
@@ -358,7 +360,7 @@ class EstimacionBiodiversidad:
             QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
             dsOut.ExecuteSQL(query)        
             i = i + 1
-            if i >= 1000:
+            if i >= 40000:
                 break
 
 
@@ -428,7 +430,65 @@ class EstimacionBiodiversidad:
         
         
         dsOut = None
+
+    def createDB(self):
+        self.setVariables()
+        driverName = "SQLite"
         
+        # =================
+        # Database creation
+        # =================
+        QgsMessageLog.logMessage("Creating " + self.outDB + "...", 'EstimacionBiodiversidad', level=Qgis.Info)
+
+        drv = ogr.GetDriverByName(driverName)
+        if drv is None:
+            QgsMessageLog.logMessage("Could not find driver " + self.outDB, 'EstimacionBiodiversidad', level=Qgis.Info)
+            QMessageBox.information(None, "", "Could not find driver " + self.outDB)
+            return
+            
+        dsOut = drv.CreateDataSource(self.outDB, ['SPATIALITE=YES'])
+        if dsOut is None:
+            QgsMessageLog.logMessage("Could not create " + self.outDB, 'EstimacionBiodiversidad', level=Qgis.Info)
+            QMessageBox.information(None, "", "Could not create " + self.outDB)
+            return
+           
+        QgsMessageLog.logMessage("Empty " + self.outDB + " created", 'EstimacionBiodiversidad', level=Qgis.Info)
+
+        # ==============
+        # Table creation
+        # ==============
+                
+        # Taxon table creation
+        QgsMessageLog.logMessage("Creating taxon table...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "CREATE TABLE taxon ("
+        query +=  "taxon_id         INTEGER,"
+        query +=  "scientific_name  TEXT,"
+        query +=  "kingdom_id       INTEGER,"
+        query +=  "phylum_id        INTEGER,"
+        query +=  "class_id         INTEGER,"
+        query +=  "order_id         INTEGER,"
+        query +=  "family_id        INTEGER,"
+        query +=  "genus_id         INTEGER,"
+        query +=  "taxon_rank_id    INTEGER,"
+        query +=  "parent_name_id   INTEGER,"                 
+        query +=  "accepted_name_id INTEGER"
+        query +=  ")"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut.ExecuteSQL(query)
+        QgsMessageLog.logMessage("Text and numbers columns of the taxon table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+        # THIS IS WEIRD...IT SEEMS WE NEED TO DEFINE A SPATIAL COLUMN IN ORDER TO CREATE THE TABLE
+        query = "SELECT AddGeometryColumn('taxon', 'GEOMETRY', 4326, 'POINT', 'XY')"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut.ExecuteSQL(query)
+        QgsMessageLog.logMessage("Spatial columns of the taxon table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+
+        #test
+        query = "INSERT INTO taxon (taxon_id, scientific_name) VALUES (1, 'Animalia')"
+        dsOut.ExecuteSQL(query)
+        
+        dsOut = None
+        QgsMessageLog.logMessage(self.outDB + " created!", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        QMessageBox.information(None, "", self.outDB + " created!")
         
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
