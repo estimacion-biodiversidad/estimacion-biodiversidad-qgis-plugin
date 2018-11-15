@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>905</width>
+    <width>1078</width>
     <height>433</height>
    </rect>
   </property>
@@ -34,7 +34,7 @@
     <rect>
      <x>20</x>
      <y>30</y>
-     <width>851</width>
+     <width>1021</width>
      <height>251</height>
     </rect>
    </property>
@@ -163,12 +163,25 @@
       <rect>
        <x>720</x>
        <y>50</y>
-       <width>111</width>
+       <width>161</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
       <string>Crear base de datos</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pb_loadInOccurrenceFile">
+     <property name="geometry">
+      <rect>
+       <x>720</x>
+       <y>100</y>
+       <width>161</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cargar registros de presencia</string>
      </property>
     </widget>
    </widget>
