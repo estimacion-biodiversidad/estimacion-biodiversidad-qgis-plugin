@@ -179,10 +179,12 @@ class EstimacionBiodiversidad:
             parent=self.iface.mainWindow())
         self.dlg.tb_outDB.clicked.connect(self.saveOutDB)
         self.dlg.tb_inOccurrenceFile.clicked.connect(self.openInOccurrenceFile)
+        self.dlg.tb_inDistributionFile.clicked.connect(self.openInDistributionFile)
         self.dlg.tb_inThematicAreaFile.clicked.connect(self.openInThematicAreaFile)       
 
         self.dlg.pb_createDB.clicked.connect(self.createDB)               
         self.dlg.pb_loadInOccurrenceFile.clicked.connect(self.loadInOccurrenceFile)               
+        self.dlg.pb_loadInDistributionFile.clicked.connect(self.loadInDistributionFile)        
 
     def saveOutDB(self):
         outDB = str(QFileDialog.getSaveFileName(caption="Guardar base de datos SQLite como",
@@ -198,8 +200,16 @@ class EstimacionBiodiversidad:
         self.setInOccurrenceFileLineEdit(inOccurrenceFile)                                                             
                                                  
     def setInOccurrenceFileLineEdit(self, text):
-	    self.dlg.le_inOccurrenceFile.setText(text)        
+	    self.dlg.le_inOccurrenceFile.setText(text)
 
+    def openInDistributionFile(self):
+        inDistributionFile = str(QFileDialog.getOpenFileName(caption="Abrir SHP", 
+                                                 filter="SHP (*.shp)")[0])       
+        self.setInDistributionFileLineEdit(inDistributionFile)                                                             
+                                                 
+    def setInDistributionFileLineEdit(self, text):
+	    self.dlg.le_inDistributionFile.setText(text)        
+        
     def openInThematicAreaFile(self):
         inThematicAreaFile = str(QFileDialog.getOpenFileName(caption="Abrir shapefile", 
                                                  filter="Shapefiles (*.shp)")[0])       
@@ -211,6 +221,7 @@ class EstimacionBiodiversidad:
     def setVariables(self):   
         self.outDB              = self.dlg.le_outDB.text()
         self.inOccurrenceFile   = self.dlg.le_inOccurrenceFile.text()
+        self.inDistributionFile = self.dlg.le_inDistributionFile.text()
         self.inThematicAreaFile = self.dlg.le_inThematicAreaFile.text()        
         
     def createDB_old(self):
@@ -487,10 +498,6 @@ class EstimacionBiodiversidad:
         dsOut.ExecuteSQL(query)
         QgsMessageLog.logMessage("Spatial columns of the taxon table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
 
-        #test
-        query = "INSERT INTO taxon (taxon_id, scientific_name) VALUES (1, 'Animalia')"
-        dsOut.ExecuteSQL(query)
-        
         # "taxon_occurrence" table creation
         QgsMessageLog.logMessage("Creating taxon_occurrence table...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "CREATE TABLE taxon_occurrence ("
@@ -506,18 +513,42 @@ class EstimacionBiodiversidad:
         dsOut.ExecuteSQL(query)
         QgsMessageLog.logMessage("Spatial columns of the taxon_occurrence table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
 
-        # test
-        #QgsMessageLog.logMessage("INSERT INTO taxon_occurrence (taxon_occurrence_id, taxon_id, GEOMETRY) VALUES(1, 1, ST_GeomFromText('POINT(-84 10)', 4326))", 'EstimacionBiodiversidad', level=Qgis.Info)
-        #query = "INSERT INTO taxon_occurrence (taxon_occurrence_id, taxon_id, GEOMETRY) VALUES(1, 1, ST_GeomFromText('POINT(-84 10)', 4326));"
-        #dsOut.ExecuteSQL(query)
-      
+        # "taxon_occurrence" table creation
+        QgsMessageLog.logMessage("Creating taxon_occurrence table...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "CREATE TABLE taxon_occurrence ("
+        query +=  "taxon_occurrence_id INTEGER,"
+        query +=  "taxon_id            INTEGER,"
+        query +=  "scientific_name     TEXT"         # this column needs to be removed because it is already defined in the taxon table
+        query +=  ")"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut.ExecuteSQL(query)
+        QgsMessageLog.logMessage("Text and numbers columns of the taxon_occurrence table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+        query = "SELECT AddGeometryColumn('taxon_occurrence', 'GEOMETRY', 4326, 'POINT', 'XY')"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut.ExecuteSQL(query)
+        QgsMessageLog.logMessage("Spatial columns of the taxon_occurrence table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+
+        # "taxon_distribution" table creation
+        QgsMessageLog.logMessage("Creating taxon_distribution table...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "CREATE TABLE taxon_distribution ("
+        query +=  "taxon_distribution_id INTEGER,"
+        query +=  "taxon_id              INTEGER,"
+        query +=  "scientific_name       TEXT"         # this column needs to be removed because it is already defined in the taxon table
+        query +=  ")"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut.ExecuteSQL(query)
+        QgsMessageLog.logMessage("Text and numbers columns of the taxon_distribution table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+        query = "SELECT AddGeometryColumn('taxon_distribution', 'GEOMETRY', 4326, 'MULTIPOLYGON', 'XY')"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut.ExecuteSQL(query)
+        QgsMessageLog.logMessage("Spatial columns of the taxon_distribution table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+              
         dsOut = None
         QgsMessageLog.logMessage(self.outDB + " created!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         QMessageBox.information(None, "", self.outDB + " created!")
         
     def loadInOccurrenceFile(self):
         self.setVariables()
-        #QMessageBox.information(None, "", "Listo")
         
         QgsMessageLog.logMessage("Opening " + self.outDB + "...", 'EstimacionBiodiversidad', level=Qgis.Info)        
         dsOut = ogr.Open(self.outDB, 1)
@@ -564,6 +595,56 @@ class EstimacionBiodiversidad:
         dsOut = None
         QgsMessageLog.logMessage("Taxon occurrence layer loaded!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         QMessageBox.information(None, "", "Taxon occurrence layer loaded!")
+
+    def loadInDistributionFile(self):
+        self.setVariables()
+        
+        QgsMessageLog.logMessage("Opening " + self.outDB + "...", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut = ogr.Open(self.outDB, 1)
+        if dsOut is None:
+            QMessageBox.information(None, "", "Could not open " + self.outDB)
+        else:
+            QgsMessageLog.logMessage(self.outDB + " opened!", 'EstimacionBiodiversidad', level=Qgis.Info)    
+
+        outLayer     = dsOut.GetLayerByName("taxon_distribution")
+        outLayerDefn = outLayer.GetLayerDefn()
+        
+        inShapefile  = self.inDistributionFile
+        driver       = ogr.GetDriverByName("ESRI Shapefile")
+        dataSource   = driver.Open(inShapefile, 0)
+        inLayer      = dataSource.GetLayer()
+            
+        i = 0
+        for feature in inLayer:
+            QgsMessageLog.logMessage(str(i), 'EstimacionBiodiversidad', level=Qgis.Info)        
+
+            # Aproach based on SQL
+            geometry    = feature.geometry()
+            if geometry.GetGeometryType() == ogr.wkbPolygon:
+                QMessageBox.information(None, "", feature.GetField("sciname") + " " + str(geometry.GetGeometryType()) + "Singlepart!")                
+                geometry = ogr.ForceToMultiPolygon(geometry)
+            geometryWKT = geometry.ExportToWkt()
+            query = "INSERT INTO taxon_distribution (taxon_distribution_id, taxon_id, scientific_name, GEOMETRY) VALUES({}, {}, '{}', ST_GeomFromText('{}', 4326));".format(1, 1, str(feature.GetField("sciname")), geometryWKT)            
+            QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+            dsOut.ExecuteSQL(query)  
+
+            # Aproach not based on SQL
+            # outFeature   = ogr.Feature(outLayerDefn)                            
+            # outFeature.SetField("taxon_occurrence_id", 1)
+            # outFeature.SetField("taxon_id",            1)
+            # outFeature.SetField("scientific_name",     "Homo sapiens")
+            # wkt = "POINT({} {})".format(record[133], record[132])
+            # point = ogr.CreateGeometryFromWkt(wkt)
+            # outFeature.SetGeometry(point)
+            # outLayer.CreateFeature(outFeature)
+                
+            i = i + 1
+            if i >= 1000:
+                break
+                    
+        dsOut = None
+        QgsMessageLog.logMessage("Taxon distribution layer loaded!", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        QMessageBox.information(None, "", "Taxon distribution layer loaded!")        
         
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
