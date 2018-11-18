@@ -178,11 +178,12 @@ class EstimacionBiodiversidad:
             callback=self.run,
             parent=self.iface.mainWindow())
         self.dlg.tb_outDB.clicked.connect(self.saveOutDB)
+        self.dlg.tb_inThematicAreaFile.clicked.connect(self.openInThematicAreaFile)       
         self.dlg.tb_inOccurrenceFile.clicked.connect(self.openInOccurrenceFile)
         self.dlg.tb_inDistributionFile.clicked.connect(self.openInDistributionFile)
-        self.dlg.tb_inThematicAreaFile.clicked.connect(self.openInThematicAreaFile)       
 
-        self.dlg.pb_createDB.clicked.connect(self.createDB)               
+        self.dlg.pb_createDB.clicked.connect(self.createDB)     
+        self.dlg.pb_loadInThematicAreaFile.clicked.connect(self.loadInThematicAreaFile)                       
         self.dlg.pb_loadInOccurrenceFile.clicked.connect(self.loadInOccurrenceFile)               
         self.dlg.pb_loadInDistributionFile.clicked.connect(self.loadInDistributionFile)        
 
@@ -193,6 +194,14 @@ class EstimacionBiodiversidad:
 
     def setOutDBLineEdit(self, text):
 	    self.dlg.le_outDB.setText(text)        
+
+    def openInThematicAreaFile(self):
+        inThematicAreaFile = str(QFileDialog.getOpenFileName(caption="Abrir shapefile", 
+                                                 filter="Shapefiles (*.shp)")[0])       
+        self.setInThematicAreaFileLineEdit(inThematicAreaFile)                                                             
+                                                 
+    def setInThematicAreaFileLineEdit(self, text):
+	    self.dlg.le_inThematicAreaFile.setText(text)        
         
     def openInOccurrenceFile(self):
         inOccurrenceFile = str(QFileDialog.getOpenFileName(caption="Abrir TXT", 
@@ -209,14 +218,6 @@ class EstimacionBiodiversidad:
                                                  
     def setInDistributionFileLineEdit(self, text):
 	    self.dlg.le_inDistributionFile.setText(text)        
-        
-    def openInThematicAreaFile(self):
-        inThematicAreaFile = str(QFileDialog.getOpenFileName(caption="Abrir shapefile", 
-                                                 filter="Shapefiles (*.shp)")[0])       
-        self.setInThematicAreaFileLineEdit(inThematicAreaFile)                                                             
-                                                 
-    def setInThematicAreaFileLineEdit(self, text):
-	    self.dlg.le_inThematicAreaFile.setText(text)        
         
     def setVariables(self):   
         self.outDB              = self.dlg.le_outDB.text()
@@ -542,10 +543,72 @@ class EstimacionBiodiversidad:
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
         dsOut.ExecuteSQL(query)
         QgsMessageLog.logMessage("Spatial columns of the taxon_distribution table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
-              
+
+        # "thematic_area" table creation
+        QgsMessageLog.logMessage("Creating thematic_area table...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "CREATE TABLE thematic_area ("
+        query +=  "thematic_area_id                INTEGER,"
+        query +=  "layer_id                        INTEGER,"        
+        query +=  "name                            TEXT,"
+        query +=  "area                            INTEGER,"        
+        query +=  "spp_richness_occurrence         INTEGER,"                
+        query +=  "spp_richness_occurrence_names   TEXT,"                        
+        query +=  "spp_richness_distribution       INTEGER,"                
+        query +=  "spp_richness_distribution_names TEXT"                        
+        query +=  ")"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut.ExecuteSQL(query)
+        QgsMessageLog.logMessage("Text and numbers columns of the thematic_area table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+        query = "SELECT AddGeometryColumn('thematic_area', 'GEOMETRY', 4326, 'MULTIPOLYGON', 'XY')"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut.ExecuteSQL(query)
+        QgsMessageLog.logMessage("Spatial columns of the thematic_area table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+        
         dsOut = None
         QgsMessageLog.logMessage(self.outDB + " created!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         QMessageBox.information(None, "", self.outDB + " created!")
+
+    def loadInThematicAreaFile(self):
+        self.setVariables()
+        
+        QgsMessageLog.logMessage("Opening " + self.outDB + "...", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut = ogr.Open(self.outDB, 1)
+        if dsOut is None:
+            QMessageBox.information(None, "", "Could not open " + self.outDB)
+        else:
+            QgsMessageLog.logMessage(self.outDB + " opened!", 'EstimacionBiodiversidad', level=Qgis.Info)    
+
+        outLayer     = dsOut.GetLayerByName("taxon_distribution")
+        outLayerDefn = outLayer.GetLayerDefn()
+        
+        inShapefile  = self.inThematicAreaFile
+        driver       = ogr.GetDriverByName("ESRI Shapefile")
+        dataSource   = driver.Open(inShapefile, 0)
+        inLayer      = dataSource.GetLayer()
+            
+        i = 0
+        for feature in inLayer:
+            QgsMessageLog.logMessage(str(i), 'EstimacionBiodiversidad', level=Qgis.Info)        
+
+            # Aproach based on SQL
+            geometry = feature.geometry()
+            if geometry.GetGeometryType() == ogr.wkbPolygon:
+                #QMessageBox.information(None, "", feature.GetField("contrato") + " " + str(geometry.GetGeometryType()) + "Singlepart!")                
+                geometry = ogr.ForceToMultiPolygon(geometry)
+            geometryWKT = geometry.ExportToWkt()
+            query  = "INSERT INTO thematic_area "
+            query += "(thematic_area_id, name, GEOMETRY) "
+            query += "VALUES({},         '{}', ST_GeomFromText('{}', 4326));".format(str(i), str(feature.GetField("contrato")), geometryWKT)
+            QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+            dsOut.ExecuteSQL(query)  
+                
+            i = i + 1
+            if i >= 1000:
+                break
+                    
+        dsOut = None
+        QgsMessageLog.logMessage("Thematic area layer loaded!", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        QMessageBox.information(None, "", "Thematic area layer loaded!")        
         
     def loadInOccurrenceFile(self):
         self.setVariables()
