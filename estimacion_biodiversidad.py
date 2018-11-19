@@ -451,6 +451,7 @@ class EstimacionBiodiversidad:
         
         dsOut = None
 
+        
     def createDB(self):
         self.setVariables()
         driverName = "SQLite"
@@ -516,21 +517,12 @@ class EstimacionBiodiversidad:
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
         dsOut.ExecuteSQL(query)
         QgsMessageLog.logMessage("Spatial columns of the taxon_occurrence table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
-
-        # "taxon_occurrence" table creation
-        QgsMessageLog.logMessage("Creating taxon_occurrence table...", 'EstimacionBiodiversidad', level=Qgis.Info)
-        query  =  "CREATE TABLE taxon_occurrence ("
-        query +=  "taxon_occurrence_id INTEGER,"
-        query +=  "taxon_id            INTEGER,"
-        query +=  "scientific_name     TEXT"         # this column needs to be removed because it is already defined in the taxon table
-        query +=  ")"
-        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
+        # Spatial index
+        QgsMessageLog.logMessage("Creating spatial index on taxon_occurrence...", 'EstimacionBiodiversidad', level=Qgis.Info)                        
+        query = "SELECT CreateSpatialIndex('taxon_occurrence', 'GEOMETRY')"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
         dsOut.ExecuteSQL(query)
-        QgsMessageLog.logMessage("Text and numbers columns of the taxon_occurrence table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
-        query = "SELECT AddGeometryColumn('taxon_occurrence', 'GEOMETRY', 4326, 'POINT', 'XY')"
-        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
-        dsOut.ExecuteSQL(query)
-        QgsMessageLog.logMessage("Spatial columns of the taxon_occurrence table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+        QgsMessageLog.logMessage("Spatial index created!\n", 'EstimacionBiodiversidad', level=Qgis.Info)        
 
         # "taxon_distribution" table creation
         QgsMessageLog.logMessage("Creating taxon_distribution table...", 'EstimacionBiodiversidad', level=Qgis.Info)
@@ -545,7 +537,13 @@ class EstimacionBiodiversidad:
         query = "SELECT AddGeometryColumn('taxon_distribution', 'GEOMETRY', 4326, 'MULTIPOLYGON', 'XY')"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
         dsOut.ExecuteSQL(query)
-        QgsMessageLog.logMessage("Spatial columns of the taxon_distribution table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+        QgsMessageLog.logMessage("Spatial columns of the taxon_distribution table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)      
+        # Spatial index
+        QgsMessageLog.logMessage("Creating spatial index on taxon_distribution...", 'EstimacionBiodiversidad', level=Qgis.Info)                        
+        query = "SELECT CreateSpatialIndex('taxon_distribution', 'GEOMETRY')"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
+        dsOut.ExecuteSQL(query)
+        QgsMessageLog.logMessage("Spatial index created!\n", 'EstimacionBiodiversidad', level=Qgis.Info)        
 
         # "thematic_area" table creation
         QgsMessageLog.logMessage("Creating thematic_area table...", 'EstimacionBiodiversidad', level=Qgis.Info)
@@ -565,12 +563,19 @@ class EstimacionBiodiversidad:
         query = "SELECT AddGeometryColumn('thematic_area', 'GEOMETRY', 4326, 'MULTIPOLYGON', 'XY')"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
         dsOut.ExecuteSQL(query)
-        QgsMessageLog.logMessage("Spatial columns of the thematic_area table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+        QgsMessageLog.logMessage("Spatial columns of the thematic_area table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)  
+        # Spatial index
+        QgsMessageLog.logMessage("Creating spatial index on thematic_area...", 'EstimacionBiodiversidad', level=Qgis.Info)                        
+        query = "SELECT CreateSpatialIndex('thematic_area', 'GEOMETRY')"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
+        dsOut.ExecuteSQL(query)
+        QgsMessageLog.logMessage("Spatial index created!\n", 'EstimacionBiodiversidad', level=Qgis.Info)        
         
         dsOut = None
         QgsMessageLog.logMessage(self.outDB + " created!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         QMessageBox.information(None, "", self.outDB + " created!")
 
+        
     def loadInThematicAreaFile(self):
         self.setVariables()
         
@@ -612,6 +617,7 @@ class EstimacionBiodiversidad:
         dsOut = None
         QgsMessageLog.logMessage("Thematic area layer loaded!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         QMessageBox.information(None, "", "Thematic area layer loaded!")        
+        
         
     def loadInOccurrenceFile(self):
         self.setVariables()
