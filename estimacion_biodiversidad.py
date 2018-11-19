@@ -186,6 +186,8 @@ class EstimacionBiodiversidad:
         self.dlg.pb_loadInThematicAreaFile.clicked.connect(self.loadInThematicAreaFile)                       
         self.dlg.pb_loadInOccurrenceFile.clicked.connect(self.loadInOccurrenceFile)               
         self.dlg.pb_loadInDistributionFile.clicked.connect(self.loadInDistributionFile)        
+        
+        self.dlg.pb_calcSppRichnessOccurrence.clicked.connect(self.calcSppRichnessOccurrence)
 
     def saveOutDB(self):
         outDB = str(QFileDialog.getSaveFileName(caption="Guardar base de datos SQLite como",
@@ -632,20 +634,24 @@ class EstimacionBiodiversidad:
                 if i == 0: # header
                     QgsMessageLog.logMessage(str(record), 'EstimacionBiodiversidad', level=Qgis.Info)        
                 else:
-                    #QgsMessageLog.logMessage(str(i), 'EstimacionBiodiversidad', level=Qgis.Info)        
-                    QgsMessageLog.logMessage(str(i) + " " + record[133] + " " + record[132], 'EstimacionBiodiversidad', level=Qgis.Info)  
+                    taxonOccurrenceId = int(record[0])
+                    taxonId           = int(record[228])
+                    scientificName    = record[229]
+                    longitude         = float(record[133])
+                    latitude          = float(record[132])
+                    QgsMessageLog.logMessage(str(i) + " " + str(longitude) + " " + str(latitude), 'EstimacionBiodiversidad', level=Qgis.Info)  
 
                     # Aproach based on SQL
-                    # query = "INSERT INTO taxon_occurrence (taxon_occurrence_id, taxon_id, scientific_name, GEOMETRY) VALUES({}, {}, '{}', ST_GeomFromText('POINT ({} {})', 4326));".format(1, 1, "Homo sapiens", record[133], record[132])                    
+                    # query = "INSERT INTO taxon_occurrence (taxon_occurrence_id, taxon_id, scientific_name, GEOMETRY) VALUES({}, {}, '{}', ST_GeomFromText('POINT ({} {})', 4326));".format(record[0], record[228], record[229], record[133], record[132])                    
                     # QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
                     # dsOut.ExecuteSQL(query)  
 
                     # Aproach not based on SQL
                     outFeature   = ogr.Feature(outLayerDefn)                            
-                    outFeature.SetField("taxon_occurrence_id", 1)
-                    outFeature.SetField("taxon_id",            1)
-                    outFeature.SetField("scientific_name",     "Homo sapiens")
-                    wkt = "POINT({} {})".format(record[133], record[132])
+                    outFeature.SetField("taxon_occurrence_id", taxonOccurrenceId)
+                    outFeature.SetField("taxon_id",            taxonId)
+                    outFeature.SetField("scientific_name",     scientificName)
+                    wkt = "POINT({} {})".format(longitude, latitude)
                     point = ogr.CreateGeometryFromWkt(wkt)
                     outFeature.SetGeometry(point)
                     outLayer.CreateFeature(outFeature)
@@ -667,7 +673,7 @@ class EstimacionBiodiversidad:
         if dsOut is None:
             QMessageBox.information(None, "", "Could not open " + self.outDB)
         else:
-            QgsMessageLog.logMessage(self.outDB + " opened!", 'EstimacionBiodiversidad', level=Qgis.Info)    
+            QgsMessageLog.logMessage(self.outDB + " opened!", 'EstimacionBiodiversidad', level=Qgis.Info)
 
         outLayer     = dsOut.GetLayerByName("taxon_distribution")
         outLayerDefn = outLayer.GetLayerDefn()
@@ -684,7 +690,7 @@ class EstimacionBiodiversidad:
             # Aproach based on SQL
             geometry    = feature.geometry()
             if geometry.GetGeometryType() == ogr.wkbPolygon:
-                QMessageBox.information(None, "", feature.GetField("sciname") + " " + str(geometry.GetGeometryType()) + "Singlepart!")                
+                #QMessageBox.information(None, "", feature.GetField("sciname") + " " + str(geometry.GetGeometryType()) + "Singlepart!")                
                 geometry = ogr.ForceToMultiPolygon(geometry)
             geometryWKT = geometry.ExportToWkt()
             query = "INSERT INTO taxon_distribution (taxon_distribution_id, taxon_id, scientific_name, GEOMETRY) VALUES({}, {}, '{}', ST_GeomFromText('{}', 4326));".format(1, 1, str(feature.GetField("sciname")), geometryWKT)            
@@ -708,6 +714,42 @@ class EstimacionBiodiversidad:
         dsOut = None
         QgsMessageLog.logMessage("Taxon distribution layer loaded!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         QMessageBox.information(None, "", "Taxon distribution layer loaded!")        
+        
+    def calcSppRichnessOccurrence(self):
+        self.setVariables()
+        
+        QgsMessageLog.logMessage("Opening " + self.outDB + "...", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut = ogr.Open(self.outDB, 1)
+        if dsOut is None:
+            QMessageBox.information(None, "", "Could not open " + self.outDB)
+        else:
+            QgsMessageLog.logMessage(self.outDB + " opened!", 'EstimacionBiodiversidad', level=Qgis.Info)    
+    
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_richness_occurrence = ("
+        query +=  "        SELECT Count(DISTINCT taxon_id)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE ST_Contains(thematic_area.Geometry, o.Geometry)"        
+        query +=  "    )"                
+        print(query)             
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_richness_occurrence_names = ("
+        query +=  "        SELECT Group_concat(DISTINCT scientific_name)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE ST_Contains(thematic_area.Geometry, o.Geometry)"        
+        query +=  "    )"                
+        print(query)             
+        dsOut.ExecuteSQL(query)     
+        
+        dsOut = None
+        QgsMessageLog.logMessage("Species richness based on occurrence records calculated!", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        QMessageBox.information(None, "", "Species richness based on occurrence records calculated!")          
         
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
