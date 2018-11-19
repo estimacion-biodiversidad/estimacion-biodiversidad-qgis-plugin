@@ -188,6 +188,7 @@ class EstimacionBiodiversidad:
         self.dlg.pb_loadInDistributionFile.clicked.connect(self.loadInDistributionFile)        
         
         self.dlg.pb_calcSppRichnessOccurrence.clicked.connect(self.calcSppRichnessOccurrence)
+        self.dlg.pb_calcSppRichnessDistribution.clicked.connect(self.calcSppRichnessDistribution)
 
     def saveOutDB(self):
         outDB = str(QFileDialog.getSaveFileName(caption="Guardar base de datos SQLite como",
@@ -748,8 +749,44 @@ class EstimacionBiodiversidad:
         dsOut.ExecuteSQL(query)     
         
         dsOut = None
-        QgsMessageLog.logMessage("Species richness based on occurrence records calculated!", 'EstimacionBiodiversidad', level=Qgis.Info)        
-        QMessageBox.information(None, "", "Species richness based on occurrence records calculated!")          
+        QgsMessageLog.logMessage("Species richness based on occurrence records has been calculated!", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        QMessageBox.information(None, "", "Species richness based on occurrence records has been calculated!")          
+        
+    def calcSppRichnessDistribution(self):
+        self.setVariables()
+        
+        QgsMessageLog.logMessage("Opening " + self.outDB + "...", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut = ogr.Open(self.outDB, 1)
+        if dsOut is None:
+            QMessageBox.information(None, "", "Could not open " + self.outDB)
+        else:
+            QgsMessageLog.logMessage(self.outDB + " opened!", 'EstimacionBiodiversidad', level=Qgis.Info)    
+    
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating species richness based on distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_richness_distribution = ("
+        query +=  "        SELECT Count(DISTINCT scientific_name)"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE ST_Intersects(thematic_area.Geometry, d.Geometry)"        
+        query +=  "    )"                
+        print(query)             
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating species names from distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_richness_distribution_names = ("
+        query +=  "        SELECT Group_concat(DISTINCT scientific_name)"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE ST_Intersects(thematic_area.Geometry, d.Geometry)"        
+        query +=  "    )"                
+        print(query)             
+        dsOut.ExecuteSQL(query)     
+        
+        dsOut = None
+        QgsMessageLog.logMessage("Species richness based on distribution areas has been calculated!", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        QMessageBox.information(None, "", "Species richness based on distribution areas has been calculated!")                  
         
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
