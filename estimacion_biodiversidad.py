@@ -179,29 +179,21 @@ class EstimacionBiodiversidad:
             text=self.tr(u'Estimación de la biodiversidad'),
             callback=self.run,
             parent=self.iface.mainWindow())
-        self.dlg.tb_outDB.clicked.connect(self.saveOutDB)
+
+        self.dlg.pb_initDatabase.clicked.connect(self.initDatabase)     
+        self.dlg.pb_connectDatabase.clicked.connect(self.connectDatabase)             
+            
         self.dlg.tb_inThematicAreaFile.clicked.connect(self.openInThematicAreaFile)       
         self.dlg.tb_inOccurrenceFile.clicked.connect(self.openInOccurrenceFile)
         self.dlg.tb_inDistributionFile.clicked.connect(self.openInDistributionFile)
 
-        self.dlg.pb_createDB.clicked.connect(self.createDB)     
         self.dlg.pb_loadInThematicAreaFile.clicked.connect(self.loadInThematicAreaFile)                       
         self.dlg.pb_loadInOccurrenceFile.clicked.connect(self.loadInOccurrenceFile)               
         self.dlg.pb_loadInDistributionFile.clicked.connect(self.loadInDistributionFile)        
         
         self.dlg.pb_calcSppRichnessOccurrence.clicked.connect(self.calcSppRichnessOccurrence)
         self.dlg.pb_calcSppRichnessDistribution.clicked.connect(self.calcSppRichnessDistribution)
-
         
-    def saveOutDB(self):
-        outDB = str(QFileDialog.getSaveFileName(caption="Guardar base de datos SQLite como",
-                                                  filter="SQLite (*.sqlite)")[0])
-        self.setOutDBLineEdit(outDB)            
-
-        
-    def setOutDBLineEdit(self, text):
-	    self.dlg.le_outDB.setText(text)        
-
         
     def openInThematicAreaFile(self):
         inThematicAreaFile = str(QFileDialog.getOpenFileName(caption="Abrir shapefile", 
@@ -226,30 +218,36 @@ class EstimacionBiodiversidad:
     def openInDistributionFile(self):
         inDistributionFile = str(QFileDialog.getOpenFileName(caption="Abrir SHP", 
                                                  filter="SHP (*.shp)")[0])       
-        self.setInDistributionFileLineEdit(inDistributionFile)                                                             
+        self.setInDistributionFileLineEdit(inDistributionFile)
 
         
     def setInDistributionFileLineEdit(self, text):
-	    self.dlg.le_inDistributionFile.setText(text)        
+	    self.dlg.le_inDistributionFile.setText(text)
 
         
+    def setDatabaseInUseLineEdit(self, text):
+	    self.dlg.le_databaseInUse.setText(text)
+        
+        
     def setVariables(self):   
-        self.outDB              = self.dlg.le_outDB.text()
-        self.inThematicAreaFile = self.dlg.le_inThematicAreaFile.text()        
+        # OGR driver
+        self.driverName     = "PostgreSQL"
+
+        # Database connection paramenters
+        self.databaseServer = self.dlg.le_databaseServer.text()
+        self.databaseSchema = self.dlg.le_databaseSchema.text()
+        self.databaseName   = self.dlg.le_databaseName.text()
+        self.databaseUser   = self.dlg.le_databaseUser.text()
+        self.databasePW     = self.dlg.le_databasePW.text()
+        self.connString     = "PG: host={} dbname={} user={} password={}".format(self.databaseServer, self.databaseName, self.databaseUser, self.databasePW)
+    
+        # Data files
+        self.inThematicAreaFile = self.dlg.le_inThematicAreaFile.text()
         self.inOccurrenceFile   = self.dlg.le_inOccurrenceFile.text()
         self.inDistributionFile = self.dlg.le_inDistributionFile.text()
         
-        self.driverName     = "PostgreSQL"
         
-        self.databaseServer = "localhost"
-        self.databaseSchema = "public"
-        self.databaseName   = "estimacion_biodiversidad"
-        self.databaseUser   = "postgres"
-        self.databasePW     = "postgres"
-        self.connString     = "PG: host={} dbname={} user={} password={}".format(self.databaseServer, self.databaseName, self.databaseUser, self.databasePW)
-        
-        
-    def createDB(self):
+    def initDatabase(self):
         self.setVariables()
         
         # =================
@@ -354,52 +352,56 @@ class EstimacionBiodiversidad:
         QMessageBox.information(None, "", "PostGIS database " + self.databaseName + " created in " + self.databaseServer)
 
         
+    def connectDatabase(self):
+        self.setVariables()
+
+        # Open database        
+        QgsMessageLog.logMessage("Opening " + self.databaseName + " in " + self.databaseServer + "...", 'EstimacionBiodiversidad', level=Qgis.Info)            
+        dsOut = ogr.Open(self.connString)
+        if dsOut is None:
+            QgsMessageLog.logMessage("Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
+            QMessageBox.information(None, "", "Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer)
+        else:
+            QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " opened in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
+            QMessageBox.information(None, "", "PostGIS database " + self.databaseName + " opened in " + self.databaseServer)
+            
+        # Update le_databaseInUse
+        self.setDatabaseInUseLineEdit(self.databaseName)
+        
+        
     def loadInThematicAreaFile(self):
         self.setVariables()
-        
-        if self.driverName == "PostgreSQL":
-            QgsMessageLog.logMessage("Opening " + self.databaseName + " in " + self.databaseServer + "...", 'EstimacionBiodiversidad', level=Qgis.Info)            
-            
-            dsOut = ogr.Open(self.connString)
-            if dsOut is None:
-                QgsMessageLog.logMessage("Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
-                QMessageBox.information(None, "", "Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer)
-                return
-                
-            QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " opened in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
-        elif self.driverName == "SQLite":
-            QgsMessageLog.logMessage("Opening " + self.outDB + "...", 'EstimacionBiodiversidad', level=Qgis.Info)        
-            dsOut = ogr.Open(self.outDB, 1)
-            if dsOut is None:
-                QgsMessageLog.logMessage("Could not open " + self.outDB, 'EstimacionBiodiversidad', level=Qgis.Info)    
-                QMessageBox.information(None, "", "Could not open " + self.outDB)
-                return
-            else:
-                QgsMessageLog.logMessage(self.outDB + " opened!", 'EstimacionBiodiversidad', level=Qgis.Info)    
 
+        # Open database        
+        QgsMessageLog.logMessage("Opening " + self.databaseName + " in " + self.databaseServer + "...", 'EstimacionBiodiversidad', level=Qgis.Info)            
+        dsOut = ogr.Open(self.connString)
+        if dsOut is None:
+            QgsMessageLog.logMessage("Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
+            QMessageBox.information(None, "", "Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer)
+            return
+        QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " opened in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
+
+        # Open shapefile with thematic areas
         inShapefile  = self.inThematicAreaFile
         driver       = ogr.GetDriverByName("ESRI Shapefile")
         dataSource   = driver.Open(inShapefile, 0)
         inLayer      = dataSource.GetLayer()
-                
+            
+        # Load thematic area records            
         for feature in inLayer:
-            QgsMessageLog.logMessage(str(i), 'EstimacionBiodiversidad', level=Qgis.Info)        
-
-            # Aproach based on SQL
             geometry = feature.geometry()
             if geometry.GetGeometryType() == ogr.wkbPolygon:
-                #QMessageBox.information(None, "", feature.GetField("contrato") + " " + str(geometry.GetGeometryType()) + "Singlepart!")                
                 geometry = ogr.ForceToMultiPolygon(geometry)
             geometryWKT = geometry.ExportToWkt()
             query  = "INSERT INTO thematic_area "
             query += "(thematic_area_id, name, geom) "
-            query += "VALUES({},         '{}', ST_GeomFromText('{}', 4326));".format(str(i), str(feature.GetField("contrato")), geometryWKT)
+            query += "VALUES({},         '{}', ST_GeomFromText('{}', 4326));".format(1, str(feature.GetField("contrato")), geometryWKT)
             QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
             dsOut.ExecuteSQL(query)  
                    
         dsOut = None
-        QgsMessageLog.logMessage("Thematic area layer loaded!", 'EstimacionBiodiversidad', level=Qgis.Info)        
-        QMessageBox.information(None, "", "Thematic area layer loaded!")        
+        QgsMessageLog.logMessage("Thematic area data loaded!", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        QMessageBox.information(None, "", "Thematic area data loaded!")        
         
         
     def loadInOccurrenceFile(self):
@@ -621,4 +623,4 @@ class EstimacionBiodiversidad:
         # See if OK was pressed
         if result:
             self.setVariables()
-            self.createDB()
+            self.initDatabase()
