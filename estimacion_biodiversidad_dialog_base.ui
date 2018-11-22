@@ -390,7 +390,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Conexión a la base de datos</string>
+      <string>Conectar a la base de datos</string>
      </property>
     </widget>
     <widget class="QLabel" name="lb_databaseInUse">

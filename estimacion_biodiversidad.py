@@ -348,8 +348,8 @@ class EstimacionBiodiversidad:
         QgsMessageLog.logMessage("Spatial index created!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         
         dsOut = None
-        QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " created in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)        
-        QMessageBox.information(None, "", "PostGIS database " + self.databaseName + " created in " + self.databaseServer)
+        QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " initialized in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)        
+        QMessageBox.information(None, "", "PostGIS database " + self.databaseName + " initialized in " + self.databaseServer)
 
         
     def connectDatabase(self):
@@ -364,9 +364,8 @@ class EstimacionBiodiversidad:
         else:
             QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " opened in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
             QMessageBox.information(None, "", "PostGIS database " + self.databaseName + " opened in " + self.databaseServer)
-            
-        # Update le_databaseInUse
-        self.setDatabaseInUseLineEdit(self.databaseName)
+            # Update le_databaseInUse
+            self.setDatabaseInUseLineEdit(self.databaseName)
         
         
     def loadInThematicAreaFile(self):
@@ -407,25 +406,14 @@ class EstimacionBiodiversidad:
     def loadInOccurrenceFile(self):
         self.setVariables()
         
-        if self.driverName == "PostgreSQL":
-            QgsMessageLog.logMessage("Opening " + self.databaseName + " in " + self.databaseServer + "...", 'EstimacionBiodiversidad', level=Qgis.Info)            
-            
-            dsOut = ogr.Open(self.connString)
-            if dsOut is None:
-                QgsMessageLog.logMessage("Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
-                QMessageBox.information(None, "", "Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer)
-                return
-                
-            QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " opened in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
-        elif self.driverName == "SQLite":
-            QgsMessageLog.logMessage("Opening " + self.outDB + "...", 'EstimacionBiodiversidad', level=Qgis.Info)        
-            dsOut = ogr.Open(self.outDB, 1)
-            if dsOut is None:
-                QgsMessageLog.logMessage("Could not open " + self.outDB, 'EstimacionBiodiversidad', level=Qgis.Info)    
-                QMessageBox.information(None, "", "Could not open " + self.outDB)
-                return
-            else:
-                QgsMessageLog.logMessage(self.outDB + " opened!", 'EstimacionBiodiversidad', level=Qgis.Info)   
+        # Open database
+        QgsMessageLog.logMessage("Opening " + self.databaseName + " in " + self.databaseServer + "...", 'EstimacionBiodiversidad', level=Qgis.Info)            
+        dsOut = ogr.Open(self.connString)
+        if dsOut is None:
+            QgsMessageLog.logMessage("Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
+            QMessageBox.information(None, "", "Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer)
+            return
+        QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " opened in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
 
         outLayer     = dsOut.GetLayerByName("taxon_occurrence")
         outLayerDefn = outLayer.GetLayerDefn()
@@ -439,7 +427,10 @@ class EstimacionBiodiversidad:
                 if i == 0: # header
                     QgsMessageLog.logMessage(str(record), 'EstimacionBiodiversidad', level=Qgis.Info)        
                 else:
-                    taxonOccurrenceId = int(record[0])
+                    if record[0] is None or record[0] == "":
+                        taxonOccurrenceId = -1
+                    else:
+                        taxonOccurrenceId = int(record[0])
                     if record[228] is None or record[228] == "":
                         taxonId = -1
                     else:
@@ -453,12 +444,12 @@ class EstimacionBiodiversidad:
                     else:
                         latitude = float(record[132])
                     scientificName = record[229]
-                    QgsMessageLog.logMessage(str(i) + " " + str(longitude) + " " + str(latitude), 'EstimacionBiodiversidad', level=Qgis.Info)  
+                    QgsMessageLog.logMessage(str(taxonOccurrenceId) + " " + str(longitude) + " " + str(latitude), 'EstimacionBiodiversidad', level=Qgis.Info)  
 
                     # Aproach based on SQL
                     query  = "INSERT INTO taxon_occurrence "
                     query += "(taxon_occurrence_id, taxon_id, scientific_name, geom) "
-                    query += "VALUES({}, {}, '{}', ST_GeomFromText('POINT ({} {})', 4326));".format(record[0], record[228], record[229], record[133], record[132])                    
+                    query += "VALUES({}, {}, '{}', ST_GeomFromText('POINT ({} {})', 4326));".format(str(taxonOccurrenceId), str(taxonId), scientificName, str(longitude), str(latitude))
                     QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
                     dsOut.ExecuteSQL(query)  
 
@@ -481,15 +472,18 @@ class EstimacionBiodiversidad:
         QgsMessageLog.logMessage("Taxon occurrence layer loaded!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         QMessageBox.information(None, "", "Taxon occurrence layer loaded!")
 
+        
     def loadInDistributionFile(self):
         self.setVariables()
         
-        QgsMessageLog.logMessage("Opening " + self.outDB + "...", 'EstimacionBiodiversidad', level=Qgis.Info)        
-        dsOut = ogr.Open(self.outDB, 1)
+        # Open database
+        QgsMessageLog.logMessage("Opening " + self.databaseName + " in " + self.databaseServer + "...", 'EstimacionBiodiversidad', level=Qgis.Info)            
+        dsOut = ogr.Open(self.connString)
         if dsOut is None:
-            QMessageBox.information(None, "", "Could not open " + self.outDB)
-        else:
-            QgsMessageLog.logMessage(self.outDB + " opened!", 'EstimacionBiodiversidad', level=Qgis.Info)
+            QgsMessageLog.logMessage("Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
+            QMessageBox.information(None, "", "Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer)
+            return
+        QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " opened in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
 
         outLayer     = dsOut.GetLayerByName("taxon_distribution")
         outLayerDefn = outLayer.GetLayerDefn()
@@ -506,10 +500,11 @@ class EstimacionBiodiversidad:
             # Aproach based on SQL
             geometry    = feature.geometry()
             if geometry.GetGeometryType() == ogr.wkbPolygon:
-                #QMessageBox.information(None, "", feature.GetField("sciname") + " " + str(geometry.GetGeometryType()) + "Singlepart!")                
                 geometry = ogr.ForceToMultiPolygon(geometry)
             geometryWKT = geometry.ExportToWkt()
-            query = "INSERT INTO taxon_distribution (taxon_distribution_id, taxon_id, scientific_name, GEOMETRY) VALUES({}, {}, '{}', ST_GeomFromText('{}', 4326));".format(1, 1, str(feature.GetField("sciname")), geometryWKT)            
+            query =  "INSERT INTO taxon_distribution "
+            query += "(taxon_distribution_id, taxon_id, scientific_name, geom) "
+            query += "VALUES({}, {}, '{}', ST_GeomFromText('{}', 4326));".format(1, 1, str(feature.GetField("sciname")), geometryWKT)            
             QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
             dsOut.ExecuteSQL(query)  
 
@@ -531,15 +526,18 @@ class EstimacionBiodiversidad:
         QgsMessageLog.logMessage("Taxon distribution layer loaded!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         QMessageBox.information(None, "", "Taxon distribution layer loaded!")        
         
+        
     def calcSppRichnessOccurrence(self):
         self.setVariables()
         
-        QgsMessageLog.logMessage("Opening " + self.outDB + "...", 'EstimacionBiodiversidad', level=Qgis.Info)        
-        dsOut = ogr.Open(self.outDB, 1)
+        # Open database
+        QgsMessageLog.logMessage("Opening " + self.databaseName + " in " + self.databaseServer + "...", 'EstimacionBiodiversidad', level=Qgis.Info)            
+        dsOut = ogr.Open(self.connString)
         if dsOut is None:
-            QMessageBox.information(None, "", "Could not open " + self.outDB)
-        else:
-            QgsMessageLog.logMessage(self.outDB + " opened!", 'EstimacionBiodiversidad', level=Qgis.Info)    
+            QgsMessageLog.logMessage("Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
+            QMessageBox.information(None, "", "Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer)
+            return
+        QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " opened in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
     
         # Species richness calculation
         QgsMessageLog.logMessage("Calculating species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
@@ -547,35 +545,38 @@ class EstimacionBiodiversidad:
         query +=  "    SET spp_richness_occurrence = ("
         query +=  "        SELECT Count(DISTINCT taxon_id)"        
         query +=  "        FROM taxon_occurrence o"
-        query +=  "        WHERE ST_Contains(thematic_area.Geometry, o.Geometry)"        
+        query +=  "        WHERE ST_Contains(thematic_area.geom, o.geom)"        
         query +=  "    )"                
-        print(query)             
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
         dsOut.ExecuteSQL(query)
 
         # Species occurrences names
         QgsMessageLog.logMessage("Generating species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "UPDATE thematic_area"
         query +=  "    SET spp_richness_occurrence_names = ("
-        query +=  "        SELECT Group_concat(DISTINCT scientific_name)"        
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
         query +=  "        FROM taxon_occurrence o"
-        query +=  "        WHERE ST_Contains(thematic_area.Geometry, o.Geometry)"        
+        query +=  "        WHERE ST_Contains(thematic_area.geom, o.geom)"        
         query +=  "    )"                
-        print(query)             
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
         dsOut.ExecuteSQL(query)     
         
         dsOut = None
         QgsMessageLog.logMessage("Species richness based on occurrence records has been calculated!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         QMessageBox.information(None, "", "Species richness based on occurrence records has been calculated!")          
         
+        
     def calcSppRichnessDistribution(self):
         self.setVariables()
         
-        QgsMessageLog.logMessage("Opening " + self.outDB + "...", 'EstimacionBiodiversidad', level=Qgis.Info)        
-        dsOut = ogr.Open(self.outDB, 1)
+        # Open database
+        QgsMessageLog.logMessage("Opening " + self.databaseName + " in " + self.databaseServer + "...", 'EstimacionBiodiversidad', level=Qgis.Info)            
+        dsOut = ogr.Open(self.connString)
         if dsOut is None:
-            QMessageBox.information(None, "", "Could not open " + self.outDB)
-        else:
-            QgsMessageLog.logMessage(self.outDB + " opened!", 'EstimacionBiodiversidad', level=Qgis.Info)    
+            QgsMessageLog.logMessage("Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
+            QMessageBox.information(None, "", "Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer)
+            return
+        QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " opened in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
     
         # Species richness calculation
         QgsMessageLog.logMessage("Calculating species richness based on distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
@@ -583,25 +584,26 @@ class EstimacionBiodiversidad:
         query +=  "    SET spp_richness_distribution = ("
         query +=  "        SELECT Count(DISTINCT scientific_name)"        
         query +=  "        FROM taxon_distribution d"
-        query +=  "        WHERE ST_Intersects(thematic_area.Geometry, d.Geometry)"        
+        query +=  "        WHERE ST_Intersects(thematic_area.geom, d.geom)"        
         query +=  "    )"                
-        print(query)             
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
         dsOut.ExecuteSQL(query)
 
         # Species occurrences names
         QgsMessageLog.logMessage("Generating species names from distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "UPDATE thematic_area"
         query +=  "    SET spp_richness_distribution_names = ("
-        query +=  "        SELECT Group_concat(DISTINCT scientific_name)"        
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
         query +=  "        FROM taxon_distribution d"
-        query +=  "        WHERE ST_Intersects(thematic_area.Geometry, d.Geometry)"        
+        query +=  "        WHERE ST_Intersects(thematic_area.geom, d.geom)"        
         query +=  "    )"                
-        print(query)             
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
         dsOut.ExecuteSQL(query)     
         
         dsOut = None
         QgsMessageLog.logMessage("Species richness based on distribution areas has been calculated!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         QMessageBox.information(None, "", "Species richness based on distribution areas has been calculated!")                  
+        
         
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
