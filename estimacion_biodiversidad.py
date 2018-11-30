@@ -30,6 +30,7 @@ from .resources import *
 from qgis.core import *
 # Import the code for the dialog
 from .estimacion_biodiversidad_dialog import EstimacionBiodiversidadDialog
+from .identify_tool_dialog import IdentifyToolDialog
 import os.path, sys
 
 from osgeo import ogr
@@ -193,7 +194,23 @@ class EstimacionBiodiversidad:
         
         self.dlg.pb_calcSppRichnessOccurrence.clicked.connect(self.calcSppRichnessOccurrence)
         self.dlg.pb_calcSppRichnessDistribution.clicked.connect(self.calcSppRichnessDistribution)
+       
+        # crear el icono en el toolbar para abrir la herramienta de seleccion de features 
+        actionIdentificarPoligono = self.add_action( 
+            icon_path, 
+            text=self.tr(u'Estadisticas'), 
+            callback=self.onClick, 
+            parent=self.iface.mainWindow()) 
+        self.actionIdentificarPoligono = actionIdentificarPoligono 
+        self.actionIdentificarPoligono.setCheckable(True) 
+        self.iface.addToolBarIcon(actionIdentificarPoligono)
         
+        
+    def onClick(self): 
+        layer = self.iface.activeLayer() 
+        self.dlgIdentificarPoligono = IdentifyToolDialog() 
+        self.dlgIdentificarPoligono.showDialog(layer)        
+       
         
     def openInThematicAreaFile(self):
         inThematicAreaFile = str(QFileDialog.getOpenFileName(caption="Abrir shapefile", 
