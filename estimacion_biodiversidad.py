@@ -260,7 +260,7 @@ class EstimacionBiodiversidad:
     
         # Data files
         self.inThematicAreaFile    = self.dlg.le_inThematicAreaFile.text()
-        self.thematicAreaNameField = self.dlg.le_thematicAreaNameField.text()
+        self.thematicAreaNameField = self.dlg.le_thematicAreaNameField.text().lower()
         self.layerName             = self.dlg.le_layerName.text()
         
         self.inOccurrenceFile   = self.dlg.le_inOccurrenceFile.text()
@@ -440,6 +440,7 @@ class EstimacionBiodiversidad:
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
         dsOut.ExecuteSQL(query)
         
+        # QMessageBox.information(None, "", self.thematicAreaNameField)
         # Load thematic area records            
         for feature in inLayer:
             geometry = feature.geometry()
