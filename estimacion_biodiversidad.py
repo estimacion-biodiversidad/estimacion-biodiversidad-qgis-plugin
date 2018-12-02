@@ -259,7 +259,10 @@ class EstimacionBiodiversidad:
         self.connString     = "PG: host={} dbname={} user={} password={}".format(self.databaseServer, self.databaseName, self.databaseUser, self.databasePW)
     
         # Data files
-        self.inThematicAreaFile = self.dlg.le_inThematicAreaFile.text()
+        self.inThematicAreaFile    = self.dlg.le_inThematicAreaFile.text()
+        self.thematicAreaNameField = self.dlg.le_thematicAreaNameField.text()
+        self.layerName             = self.dlg.le_layerName.text()
+        
         self.inOccurrenceFile   = self.dlg.le_inOccurrenceFile.text()
         self.inDistributionFile = self.dlg.le_inDistributionFile.text()
         
@@ -292,17 +295,27 @@ class EstimacionBiodiversidad:
         # ==============
                 
         # "taxon" table creation
+
+        # "layer" table creation
+        QgsMessageLog.logMessage("Creating layer table...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "CREATE TABLE layer ("
+        query +=  "layer_id SERIAL PRIMARY KEY,"
+        query +=  "name     TEXT"        
+        query +=  ")"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
+        dsOut.ExecuteSQL(query)
+        QgsMessageLog.logMessage("Text and numbers columns of the layer table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
         
         # "thematic_area" table creation
         QgsMessageLog.logMessage("Creating thematic_area table...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "CREATE TABLE thematic_area ("
-        query +=  "thematic_area_id                INTEGER,"
-        query +=  "layer_id                        INTEGER,"        
+        query +=  "thematic_area_id                SERIAL PRIMARY KEY,"
+        query +=  "layer_id                        INTEGER REFERENCES layer(layer_id),"        
         query +=  "name                            TEXT,"
-        query +=  "area                            INTEGER,"        
-        query +=  "spp_richness_occurrence         INTEGER,"                
-        query +=  "spp_richness_occurrence_names   TEXT,"                        
-        query +=  "spp_richness_distribution       INTEGER,"                
+        query +=  "area                            INTEGER,"
+        query +=  "spp_richness_occurrence         INTEGER,"
+        query +=  "spp_richness_occurrence_names   TEXT,"
+        query +=  "spp_richness_distribution       INTEGER,"
         query +=  "spp_richness_distribution_names TEXT"                        
         query +=  ")"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
@@ -402,19 +415,66 @@ class EstimacionBiodiversidad:
         driver       = ogr.GetDriverByName("ESRI Shapefile")
         dataSource   = driver.Open(inShapefile, 0)
         inLayer      = dataSource.GetLayer()
-            
+        
+        # Get next "layer_id" value
+        query = "SELECT Count(*) FROM layer;"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        ly = dsOut.ExecuteSQL(query)
+        feat = ly.GetNextFeature()
+        layerCount = feat.GetField(0)
+        if layerCount == 0:
+            # This is because "last_value" of a sequence returns 1 if there are no rows
+            layerId = 1
+        else:
+            query = "SELECT last_value FROM layer_layer_id_seq;"
+            QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+            ly = dsOut.ExecuteSQL(query)
+            feat = ly.GetNextFeature()
+            layerId = feat.GetField(0) + 1
+        # QMessageBox.information(None, "", "layerId = " + str(layerId))
+
+        # Insert record into layer table
+        query  = "INSERT INTO layer "
+        query += "(name) "
+        query += "VALUES('{}');".format(self.layerName)
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+        
         # Load thematic area records            
         for feature in inLayer:
             geometry = feature.geometry()
+            # if geometry is None or not geometry.IsValid():
+            if geometry is None:
+                break
             if geometry.GetGeometryType() == ogr.wkbPolygon:
                 geometry = ogr.ForceToMultiPolygon(geometry)
             geometryWKT = geometry.ExportToWkt()
             query  = "INSERT INTO thematic_area "
-            query += "(thematic_area_id, name, geom) "
-            query += "VALUES({},         '{}', ST_GeomFromText('{}', 4326));".format(1, str(feature.GetField("contrato")), geometryWKT)
+            query += "(layer_id, name, geom) "
+            query += "VALUES({}, '{}', ST_GeomFromText('{}', 4326));".format(str(layerId), feature.GetField(self.thematicAreaNameField), geometryWKT)
             QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
-            dsOut.ExecuteSQL(query)  
-                   
+            dsOut.ExecuteSQL(query)
+
+        # Fix invalid geometries
+        # query = "UPDATE thematic_area SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);"
+        # QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        # dsOut.ExecuteSQL(query)
+        
+        # # Delete invalid geometries
+        query = "DELETE FROM thematic_area WHERE NOT ST_IsValid(geom);"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+            
+        # Load "thematic_area" table as a layer
+        uri = QgsDataSourceUri()
+        uri.setConnection(self.databaseServer, "5432", self.databaseName, self.databaseUser, self.databasePW)
+        uri.setDataSource("public", "thematic_area", "geom", "layer_id = " + str(layerId))
+        vLayer = QgsVectorLayer(uri.uri(False), self.layerName, "postgres")
+        QgsProject.instance().addMapLayer(vLayer)
+
+        # vLayer = QgsVectorLayer( "?query=SELECT * FROM thematic_area WHERE layer_id = 1", "PSA_2016", "virtual" )
+        # QgsProject.instance().addMapLayer(vLayer)
+        
         dsOut = None
         QgsMessageLog.logMessage("Thematic area data loaded!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         QMessageBox.information(None, "", "Thematic area data loaded!")        
