@@ -246,17 +246,18 @@ class EstimacionBiodiversidad:
 	    self.dlg.le_databaseInUse.setText(text)
         
         
-    def setVariables(self):   
+    def setVariables(self):
         # OGR driver
         self.driverName     = "PostgreSQL"
 
         # Database connection paramenters
         self.databaseServer = self.dlg.le_databaseServer.text()
+        self.databasePort   = self.dlg.le_databasePort.text()
         self.databaseSchema = self.dlg.le_databaseSchema.text()
         self.databaseName   = self.dlg.le_databaseName.text()
         self.databaseUser   = self.dlg.le_databaseUser.text()
         self.databasePW     = self.dlg.le_databasePW.text()
-        self.connString     = "PG: host={} dbname={} user={} password={}".format(self.databaseServer, self.databaseName, self.databaseUser, self.databasePW)
+        self.connString     = "PG: host={} port={} active_schema={} dbname={} user={} password={}".format(self.databaseServer, self.databasePort, self.databaseSchema, self.databaseName, self.databaseUser, self.databasePW)
     
         # Data files
         self.inThematicAreaFile    = self.dlg.le_inThematicAreaFile.text()
@@ -468,7 +469,7 @@ class EstimacionBiodiversidad:
             
         # Load "thematic_area" table as a layer
         uri = QgsDataSourceUri()
-        uri.setConnection(self.databaseServer, "5432", self.databaseName, self.databaseUser, self.databasePW)
+        uri.setConnection(self.databaseServer, self.databasePort, self.databaseName, self.databaseUser, self.databasePW)
         uri.setDataSource("public", "thematic_area", "geom", "layer_id = " + str(layerId))
         vLayer = QgsVectorLayer(uri.uri(False), self.layerName, "postgres")
         QgsProject.instance().addMapLayer(vLayer)

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>966</width>
-    <height>795</height>
+    <height>798</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -80,7 +80,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>510</y>
+       <y>560</y>
        <width>131</width>
        <height>16</height>
       </rect>
@@ -93,7 +93,7 @@
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>510</y>
+       <y>560</y>
        <width>491</width>
        <height>20</height>
       </rect>
@@ -103,7 +103,7 @@
      <property name="geometry">
       <rect>
        <x>160</x>
-       <y>510</y>
+       <y>560</y>
        <width>25</width>
        <height>19</height>
       </rect>
@@ -116,7 +116,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>360</y>
+       <y>430</y>
        <width>131</width>
        <height>16</height>
       </rect>
@@ -129,7 +129,7 @@
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>360</y>
+       <y>430</y>
        <width>491</width>
        <height>20</height>
       </rect>
@@ -139,7 +139,7 @@
      <property name="geometry">
       <rect>
        <x>160</x>
-       <y>360</y>
+       <y>430</y>
        <width>25</width>
        <height>19</height>
       </rect>
@@ -152,7 +152,7 @@
      <property name="geometry">
       <rect>
        <x>720</x>
-       <y>110</y>
+       <y>150</y>
        <width>161</width>
        <height>23</height>
       </rect>
@@ -165,7 +165,7 @@
      <property name="geometry">
       <rect>
        <x>720</x>
-       <y>510</y>
+       <y>560</y>
        <width>161</width>
        <height>23</height>
       </rect>
@@ -178,7 +178,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>560</y>
+       <y>600</y>
        <width>131</width>
        <height>16</height>
       </rect>
@@ -191,7 +191,7 @@
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>560</y>
+       <y>600</y>
        <width>491</width>
        <height>20</height>
       </rect>
@@ -201,7 +201,7 @@
      <property name="geometry">
       <rect>
        <x>160</x>
-       <y>560</y>
+       <y>600</y>
        <width>25</width>
        <height>19</height>
       </rect>
@@ -214,7 +214,7 @@
      <property name="geometry">
       <rect>
        <x>720</x>
-       <y>560</y>
+       <y>600</y>
        <width>161</width>
        <height>23</height>
       </rect>
@@ -227,7 +227,7 @@
      <property name="geometry">
       <rect>
        <x>720</x>
-       <y>430</y>
+       <y>500</y>
        <width>161</width>
        <height>23</height>
       </rect>
@@ -286,7 +286,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>320</y>
+       <y>390</y>
        <width>261</width>
        <height>16</height>
       </rect>
@@ -306,7 +306,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>80</y>
+       <y>140</y>
        <width>141</width>
        <height>16</height>
       </rect>
@@ -319,7 +319,7 @@
      <property name="geometry">
       <rect>
        <x>190</x>
-       <y>80</y>
+       <y>140</y>
        <width>251</width>
        <height>20</height>
       </rect>
@@ -332,7 +332,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>140</y>
+       <y>170</y>
        <width>131</width>
        <height>16</height>
       </rect>
@@ -345,7 +345,7 @@
      <property name="geometry">
       <rect>
        <x>190</x>
-       <y>140</y>
+       <y>170</y>
        <width>251</width>
        <height>20</height>
       </rect>
@@ -358,7 +358,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>170</y>
+       <y>200</y>
        <width>131</width>
        <height>16</height>
       </rect>
@@ -371,7 +371,7 @@
      <property name="geometry">
       <rect>
        <x>190</x>
-       <y>170</y>
+       <y>200</y>
        <width>251</width>
        <height>20</height>
       </rect>
@@ -384,7 +384,7 @@
      <property name="geometry">
       <rect>
        <x>360</x>
-       <y>210</y>
+       <y>270</y>
        <width>161</width>
        <height>23</height>
       </rect>
@@ -397,7 +397,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>250</y>
+       <y>310</y>
        <width>131</width>
        <height>16</height>
       </rect>
@@ -410,7 +410,7 @@
      <property name="geometry">
       <rect>
        <x>190</x>
-       <y>250</y>
+       <y>310</y>
        <width>251</width>
        <height>20</height>
       </rect>
@@ -423,7 +423,7 @@
      <property name="geometry">
       <rect>
        <x>160</x>
-       <y>400</y>
+       <y>470</y>
        <width>161</width>
        <height>16</height>
       </rect>
@@ -436,7 +436,7 @@
      <property name="geometry">
       <rect>
        <x>160</x>
-       <y>430</y>
+       <y>500</y>
        <width>161</width>
        <height>16</height>
       </rect>
@@ -449,7 +449,7 @@
      <property name="geometry">
       <rect>
        <x>340</x>
-       <y>400</y>
+       <y>470</y>
        <width>351</width>
        <height>20</height>
       </rect>
@@ -462,13 +462,39 @@
      <property name="geometry">
       <rect>
        <x>340</x>
-       <y>430</y>
+       <y>500</y>
        <width>351</width>
        <height>20</height>
       </rect>
      </property>
      <property name="text">
       <string>psa_2017</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_databasePort">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>80</y>
+       <width>251</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>5432</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lb_databasePort">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>80</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Puerto</string>
      </property>
     </widget>
    </widget>
