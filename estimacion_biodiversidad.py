@@ -310,14 +310,58 @@ class EstimacionBiodiversidad:
         # "thematic_area" table creation
         QgsMessageLog.logMessage("Creating thematic_area table...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "CREATE TABLE thematic_area ("
-        query +=  "thematic_area_id                SERIAL PRIMARY KEY,"
-        query +=  "layer_id                        INTEGER REFERENCES layer(layer_id),"        
-        query +=  "name                            TEXT,"
-        query +=  "area                            INTEGER,"
-        query +=  "spp_richness_occurrence         INTEGER,"
-        query +=  "spp_richness_occurrence_names   TEXT,"
-        query +=  "spp_richness_distribution       INTEGER,"
-        query +=  "spp_richness_distribution_names TEXT"                        
+        query +=  "thematic_area_id                                    SERIAL PRIMARY KEY,"
+        query +=  "layer_id                                            INTEGER REFERENCES layer(layer_id),"        
+        query +=  "name                                                TEXT,"
+        query +=  "area                                                INTEGER,"
+        query +=  "spp_all_richness_occurrence                         INTEGER DEFAULT 0,"
+        query +=  "spp_all_richness_occurrence_names                   TEXT,"
+        query +=  "spp_all_richness_distribution                       INTEGER DEFAULT 0,"
+        query +=  "spp_all_richness_distribution_names                 TEXT,"
+        query +=  "spp_mammalia_richness_occurrence                    INTEGER DEFAULT 0,"
+        query +=  "spp_mammalia_richness_occurrence_names              TEXT,"
+        query +=  "spp_mammalia_richness_distribution                  INTEGER DEFAULT 0,"
+        query +=  "spp_mammalia_richness_distribution_names            TEXT,"
+        query +=  "spp_aves_richness_occurrence                        INTEGER DEFAULT 0,"
+        query +=  "spp_aves_richness_occurrence_names                  TEXT,"
+        query +=  "spp_aves_richness_distribution                      INTEGER DEFAULT 0,"
+        query +=  "spp_aves_richness_distribution_names                TEXT,"
+        query +=  "spp_reptilia_richness_occurrence                    INTEGER DEFAULT 0,"
+        query +=  "spp_reptilia_richness_occurrence_names              TEXT,"
+        query +=  "spp_reptilia_richness_distribution                  INTEGER DEFAULT 0,"
+        query +=  "spp_reptilia_richness_distribution_names            TEXT,"
+        query +=  "spp_amphibia_richness_occurrence                    INTEGER DEFAULT 0,"
+        query +=  "spp_amphibia_richness_occurrence_names              TEXT,"
+        query +=  "spp_amphibia_richness_distribution                  INTEGER DEFAULT 0,"
+        query +=  "spp_amphibia_richness_distribution_names            TEXT,"
+        query +=  "spp_trees_richness_occurrence                       INTEGER DEFAULT 0,"
+        query +=  "spp_trees_richness_occurrence_names                 TEXT,"
+        query +=  "spp_trees_richness_distribution                     INTEGER DEFAULT 0,"
+        query +=  "spp_trees_richness_distribution_names               TEXT,"
+        query +=  "spp_all_threatened_richness_occurrence              INTEGER DEFAULT 0,"
+        query +=  "spp_all_threatened_richness_occurrence_names        TEXT,"
+        query +=  "spp_all_threatened_richness_distribution            INTEGER DEFAULT 0,"
+        query +=  "spp_all_threatened_richness_distribution_names      TEXT,"		
+        query +=  "spp_mammalia_threatened_richness_occurrence         INTEGER DEFAULT 0,"
+        query +=  "spp_mammalia_threatened_richness_occurrence_names   TEXT,"
+        query +=  "spp_mammalia_threatened_richness_distribution       INTEGER DEFAULT 0,"
+        query +=  "spp_mammalia_threatened_richness_distribution_names TEXT,"		
+        query +=  "spp_aves_threatened_richness_occurrence             INTEGER DEFAULT 0,"
+        query +=  "spp_aves_threatened_richness_occurrence_names       TEXT,"
+        query +=  "spp_aves_threatened_richness_distribution           INTEGER DEFAULT 0,"
+        query +=  "spp_aves_threatened_richness_distribution_names     TEXT,"		
+        query +=  "spp_reptilia_threatened_richness_occurrence         INTEGER DEFAULT 0,"
+        query +=  "spp_reptilia_threatened_richness_occurrence_names   TEXT,"
+        query +=  "spp_reptilia_threatened_richness_distribution       INTEGER DEFAULT 0,"
+        query +=  "spp_reptilia_threatened_richness_distribution_names TEXT,"		
+        query +=  "spp_amphibia_threatened_richness_occurrence         INTEGER DEFAULT 0,"
+        query +=  "spp_amphibia_threatened_richness_occurrence_names   TEXT,"
+        query +=  "spp_amphibia_threatened_richness_distribution       INTEGER DEFAULT 0,"
+        query +=  "spp_amphibia_threatened_richness_distribution_names TEXT,"		
+        query +=  "spp_trees_threatened_richness_occurrence            INTEGER DEFAULT 0,"
+        query +=  "spp_trees_threatened_richness_occurrence_names      TEXT,"
+        query +=  "spp_trees_threatened_richness_distribution          INTEGER DEFAULT 0,"
+        query +=  "spp_trees_threatened_richness_distribution_names    TEXT"	
         query +=  ")"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
         dsOut.ExecuteSQL(query)
@@ -544,7 +588,7 @@ class EstimacionBiodiversidad:
                     
                 i = i + 1
                 
-                if i >= 100000:
+                if i >= 1000000:
                     break
                     
         dsOut = None
@@ -621,7 +665,7 @@ class EstimacionBiodiversidad:
         # Species richness calculation
         QgsMessageLog.logMessage("Calculating species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "UPDATE thematic_area"
-        query +=  "    SET spp_richness_occurrence = ("
+        query +=  "    SET spp_all_richness_occurrence = ("
         query +=  "        SELECT Count(DISTINCT taxon_id)"        
         query +=  "        FROM taxon_occurrence o"
         query +=  "        WHERE ST_Contains(thematic_area.geom, o.geom)"        
@@ -632,7 +676,7 @@ class EstimacionBiodiversidad:
         # Species occurrences names
         QgsMessageLog.logMessage("Generating species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "UPDATE thematic_area"
-        query +=  "    SET spp_richness_occurrence_names = ("
+        query +=  "    SET spp_all_richness_occurrence_names = ("
         query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
         query +=  "        FROM taxon_occurrence o"
         query +=  "        WHERE ST_Contains(thematic_area.geom, o.geom)"        
@@ -660,7 +704,7 @@ class EstimacionBiodiversidad:
         # Species richness calculation
         QgsMessageLog.logMessage("Calculating species richness based on distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "UPDATE thematic_area"
-        query +=  "    SET spp_richness_distribution = ("
+        query +=  "    SET spp_all_richness_distribution = ("
         query +=  "        SELECT Count(DISTINCT scientific_name)"        
         query +=  "        FROM taxon_distribution d"
         query +=  "        WHERE ST_Intersects(thematic_area.geom, d.geom)"        
@@ -671,7 +715,7 @@ class EstimacionBiodiversidad:
         # Species occurrences names
         QgsMessageLog.logMessage("Generating species names from distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "UPDATE thematic_area"
-        query +=  "    SET spp_richness_distribution_names = ("
+        query +=  "    SET spp_all_richness_distribution_names = ("
         query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
         query +=  "        FROM taxon_distribution d"
         query +=  "        WHERE ST_Intersects(thematic_area.geom, d.geom)"        
