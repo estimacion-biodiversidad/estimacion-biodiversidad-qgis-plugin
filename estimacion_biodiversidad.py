@@ -382,6 +382,8 @@ class EstimacionBiodiversidad:
         QgsMessageLog.logMessage("Creating taxon_occurrence table...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "CREATE TABLE taxon_occurrence ("
         query +=  "taxon_occurrence_id INTEGER,"
+		query +=  "class_id            INTEGER,"
+		query +=  "class_name          TEXT,"		
         query +=  "taxon_id            INTEGER,"
         query +=  "scientific_name     TEXT"         # this column needs to be removed because it is already defined in the taxon table
         query +=  ")"
@@ -392,7 +394,7 @@ class EstimacionBiodiversidad:
         query = "SELECT AddGeometryColumn ('public', 'taxon_occurrence', 'geom', 4326, 'POINT', 2)"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
         dsOut.ExecuteSQL(query)
-        QgsMessageLog.logMessage("Spatial columns of the taxon_occurrence table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)                
+        QgsMessageLog.logMessage("Spatial columns of the taxon_occurrence table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)
         # Spatial index
         QgsMessageLog.logMessage("Creating spatial index on taxon_occurrence...", 'EstimacionBiodiversidad', level=Qgis.Info)                        
         query = "CREATE INDEX idx_taxon_occurrence_geom ON taxon_occurrence USING gist(geom)"
@@ -554,6 +556,11 @@ class EstimacionBiodiversidad:
                         taxonOccurrenceId = -1
                     else:
                         taxonOccurrenceId = int(record[0])
+                    if record[223] is None or record[223] == "":
+                        taxonClassId = -1
+                    else:
+                        taxonClassId = int(record[223])
+				    taxonClassName = record[192]
                     if record[228] is None or record[228] == "":
                         taxonId = -1
                     else:
@@ -572,7 +579,7 @@ class EstimacionBiodiversidad:
                     # Aproach based on SQL
                     query  = "INSERT INTO taxon_occurrence "
                     query += "(taxon_occurrence_id, taxon_id, scientific_name, geom) "
-                    query += "VALUES({}, {}, '{}', ST_GeomFromText('POINT ({} {})', 4326));".format(str(taxonOccurrenceId), str(taxonId), scientificName, str(longitude), str(latitude))
+                    query += "VALUES({}, {}, '{}', {}, '{}', ST_GeomFromText('POINT ({} {})', 4326));".format(str(taxonOccurrenceId), str(taxonClassId), taxonClassName, str(taxonId), scientificName, str(longitude), str(latitude))
                     QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
                     dsOut.ExecuteSQL(query)  
 
@@ -588,7 +595,7 @@ class EstimacionBiodiversidad:
                     
                 i = i + 1
                 
-                if i >= 1000000:
+                if i >= 10000000:
                     break
                     
         dsOut = None
