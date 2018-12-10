@@ -464,6 +464,21 @@ class EstimacionBiodiversidad:
             QMessageBox.information(None, "", "PostGIS database " + self.databaseName + " opened in " + self.databaseServer)
             # Update le_databaseInUse
             self.setDatabaseInUseLineEdit(self.databaseName)
+            
+            # Get next "layer_id" value
+            query = "SELECT layer_id, name FROM layer;"
+            QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+            ly = dsOut.ExecuteSQL(query)
+            for feature in ly:
+                layerId   = feature.GetField(0)
+                layerName = feature.GetField(1)
+                QgsMessageLog.logMessage(layerName, 'EstimacionBiodiversidad', level=Qgis.Info)
+                # Load "thematic_area" table as a layer
+                uri = QgsDataSourceUri()
+                uri.setConnection(self.databaseServer, self.databasePort, self.databaseName, self.databaseUser, self.databasePW)
+                uri.setDataSource("public", "thematic_area", "geom", "layer_id = " + str(layerId))
+                vLayer = QgsVectorLayer(uri.uri(False), self.layerName, "postgres")
+                QgsProject.instance().addMapLayer(vLayer)                
         
         
     def loadInThematicAreaFile(self):
