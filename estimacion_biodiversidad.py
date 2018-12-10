@@ -31,6 +31,7 @@ from qgis.core import *
 # Import the code for the dialog
 from .estimacion_biodiversidad_dialog import EstimacionBiodiversidadDialog
 from .identify_tool_dialog import IdentifyToolDialog
+from .specify_dialog import SpecifyDialog
 import os.path, sys
 
 from osgeo import ogr
@@ -80,6 +81,8 @@ class EstimacionBiodiversidad:
         self.toolbar = self.iface.addToolBar(u'EstimacionBiodiversidad')
         self.toolbar.setObjectName(u'EstimacionBiodiversidad')
 
+        self.columnList = list(())
+        
         
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -174,7 +177,7 @@ class EstimacionBiodiversidad:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/estimacion_biodiversidad/icon.png'
+        icon_path = ':/plugins/estimacion_biodiversidad/database.png'
         self.add_action(
             icon_path,
             text=self.tr(u'Estimación de la biodiversidad'),
@@ -196,6 +199,7 @@ class EstimacionBiodiversidad:
         self.dlg.pb_calcSppRichnessDistribution.clicked.connect(self.calcSppRichnessDistribution)
        
         # crear el icono en el toolbar para abrir la herramienta de seleccion de features 
+        icon_path = ':/plugins/estimacion_biodiversidad/bar-chart.png'
         actionIdentificarPoligono = self.add_action( 
             icon_path, 
             text=self.tr(u'Estadisticas'), 
@@ -205,12 +209,31 @@ class EstimacionBiodiversidad:
         self.actionIdentificarPoligono.setCheckable(True) 
         self.iface.addToolBarIcon(actionIdentificarPoligono)
         
+        # Create icon on toolbar for the specify tool
+        icon_path = ':/plugins/estimacion_biodiversidad/search.png'
+        actionEspecificar = self.add_action(
+        icon_path,
+        text=self.tr(u'Especificar'),
+        callback=self.onClickEspecificar,
+        parent=self.iface.mainWindow())
+        self.actionEspecificar = actionEspecificar
+        self.actionEspecificar.setCheckable(True)
+        self.iface.addToolBarIcon(actionEspecificar)        
+        
         
     def onClick(self): 
         layer = self.iface.activeLayer() 
         self.dlgIdentificarPoligono = IdentifyToolDialog() 
-        self.dlgIdentificarPoligono.showDialog(layer)        
-       
+        self.dlgIdentificarPoligono.showDialog(layer, self.columnList)       
+
+
+    def onClickEspecificar(self):
+        layer = self.iface.activeLayer()
+        layer.removeSelection()
+        self.columnList.clear()
+        self.actionEspecificar = SpecifyDialog()
+        self.actionEspecificar.showDialog(layer, self.columnList)
+
         
     def openInThematicAreaFile(self):
         inThematicAreaFile = str(QFileDialog.getOpenFileName(caption="Abrir shapefile", 

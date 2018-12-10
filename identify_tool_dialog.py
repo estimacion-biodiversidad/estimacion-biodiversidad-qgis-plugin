@@ -28,7 +28,7 @@ from PyQt5 import uic
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QPushButton, QLabel, QHBoxLayout, QDialog, QWidget, QVBoxLayout, QScrollArea,\
-    QTableWidget, QTableWidgetItem, QFileDialog
+    QTableWidget, QTableWidgetItem, QFileDialog, QMessageBox
 
 from PyQt5.QtCore import QRect, Qt, QFile
 
@@ -55,8 +55,61 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
         # attributes
         self.filename = None
 
-    def showDialog(self, layer):
-        self.layer=layer;
+        self.totalColumns = {
+            "spp_mammalia_richness_occurrence": "Riqueza de Mammalia\npor registros de presencia",
+            "spp_mammalia_richness_occurrence_names": "Nombres (Mammalia)\npor registros de presencia",
+            "spp_mammalia_richness_distribution": "Riqueza de Mammalia\npor areas de distribucion",
+            "spp_mammalia_richness_distribution_names": "Nombres (Mammalia)\npor areas de distribucion",
+
+            "spp_aves_richness_occurrence": "Riqueza de Aves\npor registros de presencia",
+            "spp_aves_richness_occurrence_names": "Nombres (Aves)\npor registros de presencia",
+            "spp_aves_richness_distribution": "Riqueza de Aves\npor areas de distribucion",
+            "spp_aves_richness_distribution_names": "Nombres (Aves)\npor areas de distribucion",
+
+            "spp_reptilia_richness_occurrence": "Riqueza de Reptilia\npor registros de presencia",
+            "spp_reptilia_richness_occurrence_names": "Nombres (Reptilia)\npor registros de presencia",
+            "spp_reptilia_richness_distribution": "Riqueza de Reptilia\npor areas de distribucion",
+            "spp_reptilia_richness_distribution_names": "Nombres (Reptilia)\npor areas de distribucion",
+
+            "spp_amphibia_richness_occurrence": "Riqueza de Amphibia\npor registros de presencia",
+            "spp_amphibia_richness_occurrence_names": "Nombres (Amphibia)\npor registros de presencia",
+            "spp_amphibia_richness_distribution": "Riqueza de Amphibia\npor areas de distribucion",
+            "spp_amphibia_richness_distribution_names": "Nombres (Amphibia)\npor areas de distribucion",
+
+            "spp_trees_richness_occurrence": "Riqueza de Arboles\npor registros de presencia",
+            "spp_trees_richness_occurrence_names": "Nombres (Arboles)\npor registros de presencia",
+            "spp_trees_richness_distribution": "Riqueza de Arboles\npor areas de distribucion",
+            "spp_trees_richness_distribution": "Nombres (Arboles)\npor areas de distribucion",
+
+            "spp_mammalia_threatened_richness_occurrence": "Riqueza de Mammalia menazada\npor registros de presencia",
+            "spp_mammalia_threatened_richness_occurrence_names": "Nombres (Mammalia) amenazada\npor registros de presencia",
+            "spp_mammalia_threatened_richness_distribution": "Riqueza de Mammalia amenazada\npor areas de distribucion",
+            "spp_mammalia_threatened_richness_distribution_names": "Nombres (Mammalia)\namenazada por areas de distribucion",
+
+            "spp_aves_threatened_richness_occurrence": "Riqueza de Aves amenazada\npor registros de presencia",
+            "spp_aves_threatened_richness_occurrence_names": "Nombres (Aves) amenazada\npor registros de presencia",
+            "spp_aves_threatened_richness_distribution": "Riqueza de Aves amenazada\npor areas de distribucion",
+            "spp_aves_threatened_richness_distribution_names": "Nombres (Aves) amenazada\npor areas de distribucion",
+
+            "spp_reptilia_threatened_richness_occurrence": "Riqueza de Reptilia amenazada\npor registros de presencia",
+            "spp_reptilia_threatened_richness_occurrence_names": "Nombres (Reptilia) amenazada\npor registros de presencia",
+            "spp_reptilia_threatened_richness_distribution": "Riqueza de Reptilia amenazada\npor areas de distribucion",
+            "spp_reptilia_threatened_richness_distribution_names": "Nombres (Reptilia) amenazada\npor areas de distribucion",
+
+            "spp_amphibia_threatened_richness_occurrence": "Riqueza de Amphibia amenazada\npor registros de presencia",
+            "spp_amphibia_threatened_richness_occurrence_names": "Nombres (Amphibia) amenazada\npor registros de presencia",
+            "spp_amphibia_threatened_richness_distribution": "Riqueza de Amphibi amenazada\npor areas de distribucion",
+            "spp_amphibia_threatened_richness_distribution_names": "Nombres (Amphibia) amenazada\npor areas de distribucion",
+
+            "spp_trees_threatened_richness_occurrence": "Riqueza de Arboles amenazada\npor registros de presencia",
+            "spp_trees_threatened_richness_occurrence_names": "Nombres (Arboles) amenazada\npor registros de presencia",
+            "spp_trees_threatened_richness_distribution": "Riqueza de Arboles amenazada\npor areas de distribucion",
+            "spp_tress_threatened_richness_distribution_names": "Nombres (Arboles) amenazada\npor areas de distribucion",
+        }
+
+    def showDialog(self, layer, columnList):
+        self.layer=layer
+        self.columnList=columnList
 
         self.labelHeader = QLabel(self)
         self.labelHeader.setText("Despliegue de estadisticas")
@@ -69,39 +122,33 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
         self.buttonDescargar.resize(200, 30)
         self.buttonDescargar.clicked.connect(self.downloadCSV)
 
+        self.buttonCerrar = QPushButton('Cerrar', self)
+        self.buttonCerrar.move(220, 590)
+        self.buttonCerrar.resize(200, 30)
+        self.buttonCerrar.clicked.connect(self.close)
+
         self.tableWidget = QTableWidget(self)
-        self.tableWidget.resize(1000, 500)
+        self.tableWidget.resize(1150, 500)
         self.tableWidget.move(20, 60)
 
 
         self.tableWidget.setRowCount(layer.selectedFeatureCount())
-        self.tableWidget.setColumnCount(5)
+        self.tableWidget.setColumnCount(len(columnList)+5)
 
-        self.tableWidget.setColumnWidth(0, 100)
-        self.tableWidget.setColumnWidth(1, 100)
-        self.tableWidget.setColumnWidth(2, 350)
-        self.tableWidget.setColumnWidth(3, 100)
-        self.tableWidget.setColumnWidth(4, 350)
-        self.tableWidget.setHorizontalHeaderItem(0, QTableWidgetItem('Nombre'))
-        self.tableWidget.setHorizontalHeaderItem(1, QTableWidgetItem('Riqueza de especies por registros de presencia'))
-        self.tableWidget.setHorizontalHeaderItem(2, QTableWidgetItem('Nombre de especies presencia'))
-        self.tableWidget.setHorizontalHeaderItem(3, QTableWidgetItem('Riqueza de especies por areas de distribucion'))
-        self.tableWidget.setHorizontalHeaderItem(4, QTableWidgetItem('Nombre de especies distribucion'))
-        self.tableWidget.setSortingEnabled(True)
+        # construir las demas columnas dinamicamente segun seleccion del usuario
+        self.buildColumns()
 
-        found_features = layer.selectedFeatures()
+        self.fillColumns()
 
-        cont=0;
-        for found_feature in found_features:
-            attrs = found_feature.attributes()
-            self.tableWidget.setItem(cont, 0, QTableWidgetItem(str(attrs[2])))
-            self.tableWidget.setItem(cont, 1, QTableWidgetItem(str(attrs[4])))
-            self.tableWidget.setItem(cont, 2, QTableWidgetItem(str(attrs[5])))
-            self.tableWidget.setItem(cont, 3, QTableWidgetItem(str(attrs[6])))
-            self.tableWidget.setItem(cont, 4, QTableWidgetItem(str(attrs[7])))
-            cont=cont+1
+
+
+
 
         self.show()
+
+    def close(self):
+        self.columnList.clear()
+        self.done(1)
 
     def downloadCSV(self):
         options = QFileDialog.Options()
@@ -113,12 +160,61 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
             found_features = self.layer.selectedFeatures()
 
             for found_feature in found_features:
-                attrs = found_feature.attributes()
-                file.write(str(attrs[2]) + '\t')
-                file.write(str(attrs[4]) + '\t')
-                file.write(str(attrs[5]) + '\t')
-                file.write(str(attrs[6]) + '\t')
-                file.write(str(attrs[7]) + '\t')
+                file.write(str(found_feature["name"]) + '\t')
+
+                for column in self.columnList:
+                    file.write(str(found_feature[column]) + '\t')
+
+                file.write(str(found_feature["spp_all_richness_occurrence"]) + '\t')
+                file.write(str(found_feature["spp_all_richness_occurrence_names"]) + '\t')
+                file.write(str(found_feature["spp_all_richness_distribution"]) + '\t')
+                file.write(str(found_feature["spp_all_richness_distribution_names"]))
                 file.write('\n')
 
             file.close()
+
+    def buildColumns(self):
+        columnCount = 1
+        for column in self.columnList:
+            self.tableWidget.setHorizontalHeaderItem(columnCount, QTableWidgetItem(self.totalColumns[column]))
+            columnCount=columnCount+1
+
+        self.tableWidget.setColumnWidth(0, 100)
+        self.tableWidget.setColumnWidth(len(self.columnList)+1, 150)
+        self.tableWidget.setColumnWidth(len(self.columnList)+2, 350)
+        self.tableWidget.setColumnWidth(len(self.columnList)+3, 150)
+        self.tableWidget.setColumnWidth(len(self.columnList)+4, 350)
+
+        self.tableWidget.setHorizontalHeaderItem(0, QTableWidgetItem('Area'))
+        self.tableWidget.setHorizontalHeaderItem(len(self.columnList)+1, QTableWidgetItem('Riqueza total de especies\npor registros de presencia'))
+        self.tableWidget.setHorizontalHeaderItem(len(self.columnList)+2, QTableWidgetItem('Nombres (total de especies)\npor registros de presencia'))
+        self.tableWidget.setHorizontalHeaderItem(len(self.columnList)+3, QTableWidgetItem('Riqueza total de especies\npor áreas de distribución'))
+        self.tableWidget.setHorizontalHeaderItem(len(self.columnList)+4, QTableWidgetItem('Nombre (total de especies)\npor áreas de distribución'))
+        self.tableWidget.setSortingEnabled(True)
+
+    def fillColumns(self):
+
+
+
+        found_features = self.layer.selectedFeatures()
+
+        cont = 0;
+        columnCount = 1
+        for found_feature in found_features:
+            self.tableWidget.setItem(cont, 0, QTableWidgetItem(str(found_feature["name"])))
+
+            for column in self.columnList:
+                self.tableWidget.setItem(cont, columnCount,
+                                         QTableWidgetItem(str(found_feature[column])))
+                columnCount = columnCount + 1
+
+            self.tableWidget.setItem(cont, len(self.columnList) + 1,
+                                     QTableWidgetItem(str(found_feature["spp_all_richness_occurrence"])))
+            self.tableWidget.setItem(cont, len(self.columnList) + 2,
+                                     QTableWidgetItem(str(found_feature["spp_all_richness_occurrence_names"])))
+            self.tableWidget.setItem(cont, len(self.columnList) + 3,
+                                     QTableWidgetItem(str(found_feature["spp_all_richness_distribution"])))
+            self.tableWidget.setItem(cont, len(self.columnList) + 4,
+                                     QTableWidgetItem(str(found_feature["spp_all_richness_distribution_names"])))
+            cont = cont + 1
+            columnCount = 1
