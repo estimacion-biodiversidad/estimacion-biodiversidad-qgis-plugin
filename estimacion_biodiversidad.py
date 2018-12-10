@@ -477,7 +477,7 @@ class EstimacionBiodiversidad:
                 uri = QgsDataSourceUri()
                 uri.setConnection(self.databaseServer, self.databasePort, self.databaseName, self.databaseUser, self.databasePW)
                 uri.setDataSource("public", "thematic_area", "geom", "layer_id = " + str(layerId))
-                vLayer = QgsVectorLayer(uri.uri(False), self.layerName, "postgres")
+                vLayer = QgsVectorLayer(uri.uri(False), layerName, "postgres")
                 QgsProject.instance().addMapLayer(vLayer)                
         
         
