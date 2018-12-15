@@ -32,6 +32,7 @@ from qgis.core import *
 from .estimacion_biodiversidad_dialog import EstimacionBiodiversidadDialog
 from .identify_tool_dialog import IdentifyToolDialog
 from .specify_dialog import SpecifyDialog
+from .set_columns_dialog import SetColumnsDialog
 import os.path, sys
 
 from osgeo import ogr
@@ -199,26 +200,41 @@ class EstimacionBiodiversidad:
         self.dlg.pb_calcSppRichnessDistribution.clicked.connect(self.calcSppRichnessDistribution)
        
         # crear el icono en el toolbar para abrir la herramienta de seleccion de features 
-        icon_path = ':/plugins/estimacion_biodiversidad/bar-chart.png'
-        actionIdentificarPoligono = self.add_action( 
-            icon_path, 
-            text=self.tr(u'Estadisticas'), 
-            callback=self.onClick, 
-            parent=self.iface.mainWindow()) 
-        self.actionIdentificarPoligono = actionIdentificarPoligono 
-        self.actionIdentificarPoligono.setCheckable(True) 
-        self.iface.addToolBarIcon(actionIdentificarPoligono)
-        
-        # Create icon on toolbar for the specify tool
+        #icon_path = ':/plugins/estimacion_biodiversidad/bar-chart.png'
+        #actionIdentificarPoligono = self.add_action(
+        #    icon_path,
+        #    text=self.tr(u'Estadisticas'),
+        #    callback=self.onClick,
+        #    parent=self.iface.mainWindow())
+        #self.actionIdentificarPoligono = actionIdentificarPoligono
+        #self.actionIdentificarPoligono.setCheckable(True)
+        #self.iface.addToolBarIcon(actionIdentificarPoligono)
+
+
+        icon_path_pub = ':/plugins/estimacion_biodiversidad/bar-chart.png'
+        # crear el icono en el toolbar para abrir la herramienta de seleccion de features
+        actionSetColumns = self.add_action(
+            icon_path_pub,
+            text=self.tr(u'Set Columns'),
+            callback=self.onClickSetColumns,
+            parent=self.iface.mainWindow())
+        self.actionSetColumns = actionSetColumns
+        self.actionSetColumns.setCheckable(True)
+        self.iface.addToolBarIcon(actionSetColumns)
+
+
         icon_path = ':/plugins/estimacion_biodiversidad/search.png'
+        # crear el icono en el toolbar para abrir la herramienta de seleccion de features
         actionEspecificar = self.add_action(
-        icon_path,
-        text=self.tr(u'Especificar'),
-        callback=self.onClickEspecificar,
-        parent=self.iface.mainWindow())
+            icon_path,
+            text=self.tr(u'Especificar'),
+            callback=self.onClickEspecificar,
+            parent=self.iface.mainWindow())
         self.actionEspecificar = actionEspecificar
         self.actionEspecificar.setCheckable(True)
-        self.iface.addToolBarIcon(actionEspecificar)        
+        self.iface.addToolBarIcon(actionEspecificar)
+
+
         
         
     def onClick(self): 
@@ -229,10 +245,16 @@ class EstimacionBiodiversidad:
 
     def onClickEspecificar(self):
         layer = self.iface.activeLayer()
-        layer.removeSelection()
         self.columnList.clear()
         self.actionEspecificar = SpecifyDialog()
         self.actionEspecificar.showDialog(layer, self.columnList)
+
+
+    def onClickSetColumns(self):
+        layer = self.iface.activeLayer()
+        self.dlgSetColumns = SetColumnsDialog()
+        self.dlgSetColumns.showDialog(layer, self.columnList)
+
 
         
     def openInThematicAreaFile(self):

@@ -56,6 +56,11 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
         self.filename = None
 
         self.totalColumns = {
+            "spp_all_richness_occurrence": "Riqueza total de especies\npor registros de presencia",
+            "spp_all_richness_occurrence_names": "Nombres (total especies)\npor registros de presencia",
+            "spp_all_richness_distribution": "Riqueza (total especies)\npor areas de distribucion",
+            "spp_all_richness_distribution_names": "Nombres (total especies)\npor areas de distribucion",
+
             "spp_mammalia_richness_occurrence": "Riqueza de Mammalia\npor registros de presencia",
             "spp_mammalia_richness_occurrence_names": "Nombres (Mammalia)\npor registros de presencia",
             "spp_mammalia_richness_distribution": "Riqueza de Mammalia\npor areas de distribucion",
@@ -133,7 +138,8 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
 
 
         self.tableWidget.setRowCount(layer.selectedFeatureCount())
-        self.tableWidget.setColumnCount(len(columnList)+5)
+        # we add 1 because column "name" was incluyed previously
+        self.tableWidget.setColumnCount(len(columnList)+1)
 
         # construir las demas columnas dinamicamente segun seleccion del usuario
         self.buildColumns()
@@ -165,10 +171,6 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
                 for column in self.columnList:
                     file.write(str(found_feature[column]) + '\t')
 
-                file.write(str(found_feature["spp_all_richness_occurrence"]) + '\t')
-                file.write(str(found_feature["spp_all_richness_occurrence_names"]) + '\t')
-                file.write(str(found_feature["spp_all_richness_distribution"]) + '\t')
-                file.write(str(found_feature["spp_all_richness_distribution_names"]))
                 file.write('\n')
 
             file.close()
@@ -186,10 +188,6 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
         self.tableWidget.setColumnWidth(len(self.columnList)+4, 350)
 
         self.tableWidget.setHorizontalHeaderItem(0, QTableWidgetItem('Area'))
-        self.tableWidget.setHorizontalHeaderItem(len(self.columnList)+1, QTableWidgetItem('Riqueza total de especies\npor registros de presencia'))
-        self.tableWidget.setHorizontalHeaderItem(len(self.columnList)+2, QTableWidgetItem('Nombres (total de especies)\npor registros de presencia'))
-        self.tableWidget.setHorizontalHeaderItem(len(self.columnList)+3, QTableWidgetItem('Riqueza total de especies\npor áreas de distribución'))
-        self.tableWidget.setHorizontalHeaderItem(len(self.columnList)+4, QTableWidgetItem('Nombre (total de especies)\npor áreas de distribución'))
         self.tableWidget.setSortingEnabled(True)
 
     def fillColumns(self):
@@ -208,13 +206,5 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
                                          QTableWidgetItem(str(found_feature[column])))
                 columnCount = columnCount + 1
 
-            self.tableWidget.setItem(cont, len(self.columnList) + 1,
-                                     QTableWidgetItem(str(found_feature["spp_all_richness_occurrence"])))
-            self.tableWidget.setItem(cont, len(self.columnList) + 2,
-                                     QTableWidgetItem(str(found_feature["spp_all_richness_occurrence_names"])))
-            self.tableWidget.setItem(cont, len(self.columnList) + 3,
-                                     QTableWidgetItem(str(found_feature["spp_all_richness_distribution"])))
-            self.tableWidget.setItem(cont, len(self.columnList) + 4,
-                                     QTableWidgetItem(str(found_feature["spp_all_richness_distribution_names"])))
             cont = cont + 1
             columnCount = 1
