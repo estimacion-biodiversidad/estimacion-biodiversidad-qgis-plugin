@@ -406,7 +406,32 @@ class EstimacionBiodiversidad:
         query +=  "spp_trees_threatened_richness_occurrence            INTEGER DEFAULT 0,"
         query +=  "spp_trees_threatened_richness_occurrence_names      TEXT,"
         query +=  "spp_trees_threatened_richness_distribution          INTEGER DEFAULT 0,"
-        query +=  "spp_trees_threatened_richness_distribution_names    TEXT"	
+        query +=  "spp_trees_threatened_richness_distribution_names    TEXT,"
+        query +=  "spp_all_lcvs_richness_occurrence                    INTEGER DEFAULT 0,"        
+        query +=  "spp_all_lcvs_richness_occurrence_names              TEXT,"
+        query +=  "spp_all_lcvs_richness_distribution                  INTEGER DEFAULT 0,"
+        query +=  "spp_all_lcvs_richness_distribution_names            TEXT,"		
+        query +=  "spp_mammalia_lcvs_richness_occurrence               INTEGER DEFAULT 0,"
+        query +=  "spp_mammalia_lcvs_richness_occurrence_names         TEXT,"
+        query +=  "spp_mammalia_lcvs_richness_distribution             INTEGER DEFAULT 0,"
+        query +=  "spp_mammalia_lcvs_richness_distribution_names       TEXT,"		
+        query +=  "spp_aves_lcvs_richness_occurrence                   INTEGER DEFAULT 0,"
+        query +=  "spp_aves_lcvs_richness_occurrence_names             TEXT,"
+        query +=  "spp_aves_lcvs_richness_distribution                 INTEGER DEFAULT 0,"
+        query +=  "spp_aves_lcvs_richness_distribution_names           TEXT,"		
+        query +=  "spp_reptilia_lcvs_richness_occurrence               INTEGER DEFAULT 0,"
+        query +=  "spp_reptilia_lcvs_richness_occurrence_names         TEXT,"
+        query +=  "spp_reptilia_lcvs_richness_distribution             INTEGER DEFAULT 0,"
+        query +=  "spp_reptilia_lcvs_richness_distribution_names       TEXT,"		
+        query +=  "spp_amphibia_lcvs_richness_occurrence               INTEGER DEFAULT 0,"
+        query +=  "spp_amphibia_lcvs_richness_occurrence_names         TEXT,"
+        query +=  "spp_amphibia_lcvs_richness_distribution             INTEGER DEFAULT 0,"
+        query +=  "spp_amphibia_lcvs_richness_distribution_names       TEXT,"		
+        query +=  "spp_trees_lcvs_richness_occurrence                  INTEGER DEFAULT 0,"
+        query +=  "spp_trees_lcvs_richness_occurrence_names            TEXT,"
+        query +=  "spp_trees_lcvs_richness_distribution                INTEGER DEFAULT 0,"
+        query +=  "spp_trees_lcvs_richness_distribution_names          TEXT"	        
+        
         query +=  ")"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
         dsOut.ExecuteSQL(query)
@@ -429,9 +454,16 @@ class EstimacionBiodiversidad:
         query +=  "taxon_occurrence_id INTEGER,"
         query +=  "class_id            INTEGER,"
         query +=  "class_name          TEXT,"		
+        query +=  "order_id            INTEGER,"
+        query +=  "order_name          TEXT,"		
+        query +=  "family_id            INTEGER,"
+        query +=  "family_name          TEXT,"		
+        query +=  "genus_id            INTEGER,"
+        query +=  "genus_name          TEXT,"		        
         query +=  "taxon_id            INTEGER,"
         query +=  "scientific_name     TEXT,"         # this column needs to be removed because it is already defined in the taxon table
-        query +=  "iucn_status         CHAR(2)"		
+        query +=  "iucn_status         CHAR(2),"		
+        query +=  "lcvs_status         CHAR(2)"		        
         query +=  ")"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
         dsOut.ExecuteSQL(query)
@@ -446,10 +478,22 @@ class EstimacionBiodiversidad:
         query = "CREATE INDEX idx_taxon_occurrence_class_id ON taxon_occurrence (class_id)"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
         dsOut.ExecuteSQL(query)
+        query = "CREATE INDEX idx_taxon_occurrence_family_name ON taxon_occurrence (family_name)"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
+        dsOut.ExecuteSQL(query)
+        query = "CREATE INDEX idx_taxon_occurrence_genus_name ON taxon_occurrence (genus_name)"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
+        dsOut.ExecuteSQL(query)        
+        query = "CREATE INDEX idx_taxon_occurrence_scientific_name ON taxon_occurrence (scientific_name)"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
+        dsOut.ExecuteSQL(query)                
         query = "CREATE INDEX idx_taxon_occurrence_iucn_status ON taxon_occurrence (iucn_status)"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
         dsOut.ExecuteSQL(query)
-        QgsMessageLog.logMessage("Spatial indexes created!", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        query = "CREATE INDEX idx_taxon_occurrence_lcvs_status ON taxon_occurrence (lcvs_status)"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
+        dsOut.ExecuteSQL(query)        
+        QgsMessageLog.logMessage("Non spatial indexes created!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         # Spatial index
         QgsMessageLog.logMessage("Creating spatial index on taxon_occurrence...", 'EstimacionBiodiversidad', level=Qgis.Info)                        
         query = "CREATE INDEX idx_taxon_occurrence_geom ON taxon_occurrence USING gist(geom)"
@@ -462,9 +506,13 @@ class EstimacionBiodiversidad:
         query  =  "CREATE TABLE taxon_distribution ("
         query +=  "taxon_distribution_id INTEGER,"
         query +=  "class_name            TEXT,"		
+        query +=  "order_name            TEXT,"		        
+        query +=  "family_name           TEXT,"		
+        query +=  "genus_name            TEXT,"		        
         query +=  "taxon_id              INTEGER,"
         query +=  "scientific_name       TEXT,"         # this column needs to be removed because it is already defined in the taxon table
-        query +=  "iucn_status           CHAR(2)"		        
+        query +=  "iucn_status           CHAR(2),"		        
+        query +=  "lcvs_status           CHAR(2)"		                
         query +=  ")"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)        
         dsOut.ExecuteSQL(query)
@@ -479,10 +527,22 @@ class EstimacionBiodiversidad:
         query = "CREATE INDEX idx_taxon_distribution_class_name ON taxon_distribution (class_name)"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
         dsOut.ExecuteSQL(query)
+        query = "CREATE INDEX idx_taxon_distribution_family_name ON taxon_distribution (family_name)"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
+        dsOut.ExecuteSQL(query)
+        query = "CREATE INDEX idx_taxon_distribution_genus_name ON taxon_distribution (genus_name)"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
+        dsOut.ExecuteSQL(query)
+        query = "CREATE INDEX idx_taxon_distribution_scientific_name ON taxon_distribution (scientific_name)"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
+        dsOut.ExecuteSQL(query)
         query = "CREATE INDEX idx_taxon_distribution_iucn_status ON taxon_distribution (iucn_status)"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
         dsOut.ExecuteSQL(query)
-        QgsMessageLog.logMessage("Spatial indexes created!", 'EstimacionBiodiversidad', level=Qgis.Info)        
+        query = "CREATE INDEX idx_taxon_distribution_lcvs_status ON taxon_distribution (lcvs_status)"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
+        dsOut.ExecuteSQL(query)        
+        QgsMessageLog.logMessage("Non spatial indexes created!", 'EstimacionBiodiversidad', level=Qgis.Info)        
         # Spatial index
         QgsMessageLog.logMessage("Creating spatial index on taxon_distribution...", 'EstimacionBiodiversidad', level=Qgis.Info)                        
         query = "CREATE INDEX idx_taxon_distribution_geom ON taxon_distribution USING gist(geom)"
@@ -653,15 +713,21 @@ class EstimacionBiodiversidad:
                         taxonOccurrenceId = -1
                     else:
                         taxonOccurrenceId = int(record[0])
+                        
                     if record[223] is None or record[223] == "":
                         taxonClassId = -1
                     else:
                         taxonClassId = int(record[223])
                     taxonClassName = record[192]
+                    
+                    taxonFamilyName = record[194]
+                    taxonGenusName  = record[195]                    
+                    
                     if record[228] is None or record[228] == "":
                         taxonId = -1
                     else:
                         taxonId = int(record[228])
+                        
                     if record[133] is None:
                         longitude = -1
                     else:
@@ -675,8 +741,8 @@ class EstimacionBiodiversidad:
 
                     # Aproach based on SQL
                     query  = "INSERT INTO taxon_occurrence "
-                    query += "(taxon_occurrence_id, class_id, class_name, taxon_id, scientific_name, geom) "
-                    query += "VALUES({}, {}, '{}', {}, '{}', ST_GeomFromText('POINT ({} {})', 4326));".format(str(taxonOccurrenceId), str(taxonClassId), taxonClassName, str(taxonId), scientificName, str(longitude), str(latitude))
+                    query += "(taxon_occurrence_id, class_id, class_name, family_name, genus_name, taxon_id, scientific_name, geom) "
+                    query += "VALUES({}, {}, '{}', '{}', '{}', {}, '{}', ST_GeomFromText('POINT ({} {})', 4326));".format(str(taxonOccurrenceId), str(taxonClassId), taxonClassName, taxonFamilyName, taxonGenusName, str(taxonId), scientificName, str(longitude), str(latitude))
                     QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
                     dsOut.ExecuteSQL(query)  
 
@@ -730,8 +796,8 @@ class EstimacionBiodiversidad:
                 geometry = ogr.ForceToMultiPolygon(geometry)
             geometryWKT = geometry.ExportToWkt()
             query =  "INSERT INTO taxon_distribution "
-            query += "(taxon_distribution_id, taxon_id, class_name, scientific_name, geom) "
-            query += "VALUES({}, {}, '{}', '{}', ST_GeomFromText('{}', 4326));".format(1, 1, str(feature.GetField("class")).capitalize(), str(feature.GetField("sciname")), geometryWKT)            
+            query += "(taxon_distribution_id, taxon_id, class_name, family_name, genus_name, scientific_name, geom) "
+            query += "VALUES({}, {}, '{}', '{}', '{}', '{}', ST_GeomFromText('{}', 4326));".format(1, 1, str(feature.GetField("class")).capitalize(), str(feature.GetField("family")).capitalize(), str(feature.GetField("genus")).capitalize(), str(feature.GetField("sciname")), geometryWKT)            
             QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
             dsOut.ExecuteSQL(query)  
 
@@ -882,7 +948,7 @@ class EstimacionBiodiversidad:
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
         dsOut.ExecuteSQL(query)     		
         
-        # THREATENED SPECIES
+        # IUCN THREATENED SPECIES
 	    # All groups
         # Species richness calculation
         QgsMessageLog.logMessage("Calculating all species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
@@ -994,6 +1060,122 @@ class EstimacionBiodiversidad:
         query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
         query +=  "        FROM taxon_occurrence o"
         query +=  "        WHERE class_id = 131 AND iucn_status IN ('VU', 'EN', 'CR') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)             
+
+        # LCVS THREATENED SPECIES
+	    # All groups
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating all species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_all_lcvs_richness_occurrence = ("
+        query +=  "        SELECT Count(DISTINCT taxon_id)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating all species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_all_lcvs_richness_occurrence_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)    
+
+	    # Mammalia species
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating mammalia species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_mammalia_lcvs_richness_occurrence = ("
+        query +=  "        SELECT Count(DISTINCT taxon_id)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE class_id = 359 AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating mammalia species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_mammalia_lcvs_richness_occurrence_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE class_id = 359 AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)     		
+
+	    # Aves species
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating aves species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_aves_lcvs_richness_occurrence = ("
+        query +=  "        SELECT Count(DISTINCT taxon_id)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE class_id = 44 AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating aves species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_aves_lcvs_richness_occurrence_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE class_id = 44 AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)     		
+
+	    # Reptilia species
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating mammalia species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_reptilia_lcvs_richness_occurrence = ("
+        query +=  "        SELECT Count(DISTINCT taxon_id)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE class_id = 358 AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating mammalia species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_reptilia_lcvs_richness_occurrence_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE class_id = 358 AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)     		
+
+	    # Amphibia species
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating mammalia species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_amphibia_lcvs_richness_occurrence = ("
+        query +=  "        SELECT Count(DISTINCT taxon_id)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE class_id = 131 AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating mammalia species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_amphibia_lcvs_richness_occurrence_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE class_id = 131 AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
         query +=  "    )"                
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
         dsOut.ExecuteSQL(query)             
@@ -1131,7 +1313,7 @@ class EstimacionBiodiversidad:
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
         dsOut.ExecuteSQL(query)     
 		
-        # THREATENED SPECIES
+        # IUCN THREATENED SPECIES
 	    # All groups
         # Species richness calculation
         QgsMessageLog.logMessage("Calculating all species richness based on distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
@@ -1245,7 +1427,123 @@ class EstimacionBiodiversidad:
         query +=  "        WHERE class_name = 'Amphibia' AND iucn_status IN ('VU', 'EN', 'CR') AND ST_Intersects(thematic_area.geom, d.geom)"        
         query +=  "    )"                
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+        
+        # LCVS THREATENED SPECIES
+	    # All groups
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating all species richness based on distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_all_lcvs_richness_distribution = ("
+        query +=  "        SELECT Count(DISTINCT scientific_name)"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE lcvs_status IN ('PR', 'PE', 'VE') AND ST_Intersects(thematic_area.geom, d.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating all species names from distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_all_lcvs_richness_distribution_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE lcvs_status IN ('PR', 'PE', 'VE') AND ST_Intersects(thematic_area.geom, d.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
         dsOut.ExecuteSQL(query)     
+
+	    # Mammalia species
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating mammalia species richness based on distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_mammalia_lcvs_richness_distribution = ("
+        query +=  "        SELECT Count(DISTINCT scientific_name)"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE class_name = 'Mammalia' AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Intersects(thematic_area.geom, d.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating mammalia species names from distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_mammalia_lcvs_richness_distribution_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE class_name = 'Mammalia' AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Intersects(thematic_area.geom, d.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)     
+
+	    # Aves species
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating aves species richness based on distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_aves_lcvs_richness_distribution = ("
+        query +=  "        SELECT Count(DISTINCT scientific_name)"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE class_name = 'Aves' AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Intersects(thematic_area.geom, d.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating aves species names from distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_aves_lcvs_richness_distribution_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE class_name = 'Aves' AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Intersects(thematic_area.geom, d.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)     
+		
+	    # Reptilia species
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating reptilia species richness based on distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_reptilia_lcvs_richness_distribution = ("
+        query +=  "        SELECT Count(DISTINCT scientific_name)"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE class_name = 'Reptilia' AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Intersects(thematic_area.geom, d.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating reptilia species names from distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_reptilia_lcvs_richness_distribution_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE class_name = 'Reptilia' AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Intersects(thematic_area.geom, d.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)     
+
+	    # Amphibia species
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating amphibia species richness based on distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_amphibia_lcvs_richness_distribution = ("
+        query +=  "        SELECT Count(DISTINCT scientific_name)"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE class_name = 'Amphibia' AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Intersects(thematic_area.geom, d.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating amphibia species names from distribution areas...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_amphibia_lcvs_richness_distribution_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_distribution d"
+        query +=  "        WHERE class_name = 'Amphibia' AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Intersects(thematic_area.geom, d.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)           
 		
         dsOut = None
         QgsMessageLog.logMessage("Species richness based on distribution areas has been calculated!", 'EstimacionBiodiversidad', level=Qgis.Info)        
