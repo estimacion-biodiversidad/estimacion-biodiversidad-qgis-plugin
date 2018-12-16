@@ -1,0 +1,8 @@
+<ui version="4.0" >
+ <class>IdentifyToolDialogBase</class>
+ <widget class="QDialog" name="IdentifyToolDialogBase" >
+  <widget class="QDialogButtonBox" name="button_box" >
+  </widget>
+ </widget>
+ <resources/>
+</ui>
