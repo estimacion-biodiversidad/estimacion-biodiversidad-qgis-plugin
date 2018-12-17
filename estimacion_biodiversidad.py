@@ -452,12 +452,14 @@ class EstimacionBiodiversidad:
         QgsMessageLog.logMessage("Creating taxon_occurrence table...", 'EstimacionBiodiversidad', level=Qgis.Info)
         query  =  "CREATE TABLE taxon_occurrence ("
         query +=  "taxon_occurrence_id INTEGER,"
+        query +=  "kingdom_id          INTEGER,"
+        query +=  "kingdom_name        TEXT,"		        
         query +=  "class_id            INTEGER,"
         query +=  "class_name          TEXT,"		
         query +=  "order_id            INTEGER,"
         query +=  "order_name          TEXT,"		
-        query +=  "family_id            INTEGER,"
-        query +=  "family_name          TEXT,"		
+        query +=  "family_id           INTEGER,"
+        query +=  "family_name         TEXT,"		
         query +=  "genus_id            INTEGER,"
         query +=  "genus_name          TEXT,"		        
         query +=  "taxon_id            INTEGER,"
@@ -474,7 +476,10 @@ class EstimacionBiodiversidad:
         dsOut.ExecuteSQL(query)
         QgsMessageLog.logMessage("Spatial columns of the taxon_occurrence table have been created", 'EstimacionBiodiversidad', level=Qgis.Info)
 		# Non spatial indexes
-        QgsMessageLog.logMessage("Creating non spatial indexes on taxon_occurrence...", 'EstimacionBiodiversidad', level=Qgis.Info)                        
+        QgsMessageLog.logMessage("Creating non spatial indexes on taxon_occurrence...", 'EstimacionBiodiversidad', level=Qgis.Info)   
+        query = "CREATE INDEX idx_taxon_occurrence_kingdom_id ON taxon_occurrence (kingdom_id)"
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
+        dsOut.ExecuteSQL(query)        
         query = "CREATE INDEX idx_taxon_occurrence_class_id ON taxon_occurrence (class_id)"
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)          
         dsOut.ExecuteSQL(query)
@@ -706,13 +711,19 @@ class EstimacionBiodiversidad:
                     QgsMessageLog.logMessage(str(record), 'EstimacionBiodiversidad', level=Qgis.Info)        
                 else:
                     # Check if the records is identified at species or subspecies level
-                    if record[199] not in ('SPECIES', 'SUBSPECIES'):
+                    if record[199] not in ('SPECIES', 'SUBSPECIES', 'VARIETY', 'FORM'):
                         continue
 
                     if record[0] is None or record[0] == "":
                         taxonOccurrenceId = -1
                     else:
                         taxonOccurrenceId = int(record[0])
+                        
+                    if record[221] is None or record[221] == "":
+                        taxonKingdomId = -1
+                    else:
+                        taxonKingdomId = int(record[221])
+                    taxonKingdomName = record[190]                        
                         
                     if record[223] is None or record[223] == "":
                         taxonClassId = -1
@@ -741,8 +752,8 @@ class EstimacionBiodiversidad:
 
                     # Aproach based on SQL
                     query  = "INSERT INTO taxon_occurrence "
-                    query += "(taxon_occurrence_id, class_id, class_name, family_name, genus_name, taxon_id, scientific_name, geom) "
-                    query += "VALUES({}, {}, '{}', '{}', '{}', {}, '{}', ST_GeomFromText('POINT ({} {})', 4326));".format(str(taxonOccurrenceId), str(taxonClassId), taxonClassName, taxonFamilyName, taxonGenusName, str(taxonId), scientificName, str(longitude), str(latitude))
+                    query += "(taxon_occurrence_id, kingdom_id, kingdom_name, class_id, class_name, family_name, genus_name, taxon_id, scientific_name, geom) "
+                    query += "VALUES({}, {}, '{}', {}, '{}', '{}', '{}', {}, '{}', ST_GeomFromText('POINT ({} {})', 4326));".format(str(taxonOccurrenceId), str(taxonKingdomId), taxonKingdomName, str(taxonClassId), taxonClassName, taxonFamilyName, taxonGenusName, str(taxonId), scientificName, str(longitude), str(latitude))
                     QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
                     dsOut.ExecuteSQL(query)  
 
@@ -946,7 +957,30 @@ class EstimacionBiodiversidad:
         query +=  "        WHERE class_id = 131 AND ST_Contains(thematic_area.geom, o.geom)"        
         query +=  "    )"                
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
-        dsOut.ExecuteSQL(query)     		
+        dsOut.ExecuteSQL(query)     	
+
+	    # Plantae species
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating trees species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_trees_richness_occurrence = ("
+        query +=  "        SELECT Count(DISTINCT taxon_id)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE kingdom_id = 6 AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating trees species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_trees_richness_occurrence_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE kingdom_id = 6 AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)     	        
         
         # IUCN THREATENED SPECIES
 	    # All groups
@@ -1063,6 +1097,30 @@ class EstimacionBiodiversidad:
         query +=  "    )"                
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
         dsOut.ExecuteSQL(query)             
+        
+	    # Plantae species
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating mammalia species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_trees_threatened_richness_occurrence = ("
+        query +=  "        SELECT Count(DISTINCT taxon_id)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE kingdom_id = 6 AND iucn_status IN ('VU', 'EN', 'CR') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating mammalia species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_trees_threatened_richness_occurrence_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE kingdom_id = 6 AND iucn_status IN ('VU', 'EN', 'CR') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)             
+        
 
         # LCVS THREATENED SPECIES
 	    # All groups
@@ -1179,6 +1237,30 @@ class EstimacionBiodiversidad:
         query +=  "    )"                
         QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
         dsOut.ExecuteSQL(query)             
+        
+	    # Plantae species
+        # Species richness calculation
+        QgsMessageLog.logMessage("Calculating mammalia species richness based on occurrence records...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_trees_lcvs_richness_occurrence = ("
+        query +=  "        SELECT Count(DISTINCT taxon_id)"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE kingdom_id = 6 AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)
+
+        # Species occurrences names
+        QgsMessageLog.logMessage("Generating mammalia species names from occurrences...", 'EstimacionBiodiversidad', level=Qgis.Info)
+        query  =  "UPDATE thematic_area"
+        query +=  "    SET spp_trees_lcvs_richness_occurrence_names = ("
+        query +=  "        SELECT String_agg(DISTINCT scientific_name, ',')"        
+        query +=  "        FROM taxon_occurrence o"
+        query +=  "        WHERE kingdom_id = 6 AND lcvs_status IN ('PR', 'PE', 'VE') AND ST_Contains(thematic_area.geom, o.geom)"        
+        query +=  "    )"                
+        QgsMessageLog.logMessage(query, 'EstimacionBiodiversidad', level=Qgis.Info)
+        dsOut.ExecuteSQL(query)             
+        
         
         dsOut = None
         QgsMessageLog.logMessage("Species richness based on occurrence records has been calculated!", 'EstimacionBiodiversidad', level=Qgis.Info)        
