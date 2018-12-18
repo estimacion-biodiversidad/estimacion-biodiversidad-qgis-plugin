@@ -83,6 +83,7 @@ class EstimacionBiodiversidad:
         self.toolbar.setObjectName(u'EstimacionBiodiversidad')
 
         self.columnList = list(())
+        self.fonafifoUrl = "C:/OSGeo4W64/custom_plugins/estimacion-biodiversidad-qgis-plugin/fonafifo_small.png";
         
         
     # noinspection PyMethodMayBeStatic
@@ -237,23 +238,23 @@ class EstimacionBiodiversidad:
 
         
         
-    def onClick(self): 
-        layer = self.iface.activeLayer() 
-        self.dlgIdentificarPoligono = IdentifyToolDialog() 
-        self.dlgIdentificarPoligono.showDialog(layer, self.columnList)       
+ #   def onClick(self):
+ #       layer = self.iface.activeLayer()
+ #       self.dlgIdentificarPoligono = IdentifyToolDialog()
+ #       self.dlgIdentificarPoligono.showDialog(layer, self.columnList, self.fonafifoUrl)
 
 
     def onClickEspecificar(self):
         layer = self.iface.activeLayer()
         self.columnList.clear()
         self.actionEspecificar = SpecifyDialog()
-        self.actionEspecificar.showDialog(layer, self.columnList)
+        self.actionEspecificar.showDialog(layer, self.columnList, self.fonafifoUrl)
 
 
     def onClickSetColumns(self):
         layer = self.iface.activeLayer()
         self.dlgSetColumns = SetColumnsDialog()
-        self.dlgSetColumns.showDialog(layer, self.columnList)
+        self.dlgSetColumns.showDialog(layer, self.columnList, self.fonafifoUrl)
 
 
         

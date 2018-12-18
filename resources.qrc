@@ -4,5 +4,6 @@
         <file>bar-chart.png</file>
         <file>search.png</file>
         <file>database.png</file>
+        <file>fonafifo_small.png</file>
     </qresource>
 </RCC>
