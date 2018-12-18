@@ -182,7 +182,7 @@ class EstimacionBiodiversidad:
         icon_path = ':/plugins/estimacion_biodiversidad/database.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'Estimación de la biodiversidad'),
+            text=self.tr(u'Administracion del Sistema'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
@@ -216,7 +216,7 @@ class EstimacionBiodiversidad:
         # crear el icono en el toolbar para abrir la herramienta de seleccion de features
         actionSetColumns = self.add_action(
             icon_path_pub,
-            text=self.tr(u'Set Columns'),
+            text=self.tr(u'Reporte'),
             callback=self.onClickSetColumns,
             parent=self.iface.mainWindow())
         self.actionSetColumns = actionSetColumns
@@ -228,7 +228,7 @@ class EstimacionBiodiversidad:
         # crear el icono en el toolbar para abrir la herramienta de seleccion de features
         actionEspecificar = self.add_action(
             icon_path,
-            text=self.tr(u'Especificar'),
+            text=self.tr(u'Busqueda'),
             callback=self.onClickEspecificar,
             parent=self.iface.mainWindow())
         self.actionEspecificar = actionEspecificar
