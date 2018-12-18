@@ -83,7 +83,7 @@ class EstimacionBiodiversidad:
         self.toolbar.setObjectName(u'EstimacionBiodiversidad')
 
         self.columnList = list(())
-        self.fonafifoUrl = "C:/OSGeo4W64/custom_plugins/estimacion-biodiversidad-qgis-plugin/fonafifo_small.png";
+        self.fonafifoUrl = ":/plugins/estimacion_biodiversidad/fonafifo_small.png";
         
         
     # noinspection PyMethodMayBeStatic
@@ -182,7 +182,7 @@ class EstimacionBiodiversidad:
         icon_path = ':/plugins/estimacion_biodiversidad/database.png'
         actionDatabase = self.add_action(
             icon_path,
-            text=self.tr(u'Administracion del Sistema'),
+            text=self.tr(u'Administración del Sistema'),
             callback=self.run,
             parent=self.iface.mainWindow())
         self.iface.addToolBarIcon(actionDatabase)
@@ -229,7 +229,7 @@ class EstimacionBiodiversidad:
         # crear el icono en el toolbar para abrir la herramienta de seleccion de features
         actionEspecificar = self.add_action(
             icon_path,
-            text=self.tr(u'Busqueda'),
+            text=self.tr(u'Búsqueda'),
             callback=self.onClickEspecificar,
             parent=self.iface.mainWindow())
         self.actionEspecificar = actionEspecificar
@@ -573,7 +573,7 @@ class EstimacionBiodiversidad:
             QMessageBox.information(None, "", "Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer)
         else:
             QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " opened in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
-            QMessageBox.information(None, "", "PostGIS database " + self.databaseName + " opened in " + self.databaseServer)
+            QMessageBox.information(None, "", "Base de datos " + self.databaseName + " abierta en " + self.databaseServer)
             # Update le_databaseInUse
             self.setDatabaseInUseLineEdit(self.databaseName)
             

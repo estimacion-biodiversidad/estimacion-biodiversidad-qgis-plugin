@@ -79,7 +79,7 @@ class SpecifyDialog(QtWidgets.QDialog):
         pic.setPixmap(pixmap)
 
         self.labelHeader = QLabel(self)
-        self.labelHeader.setText("Busqueda por criterios")
+        self.labelHeader.setText("Búsqueda por criterios")
         self.labelHeader.setStyleSheet('color: #076F00')
         self.labelHeader.move(10, 20)
         newfont = QFont("Times", 20, QFont.Bold)
@@ -221,13 +221,13 @@ class SpecifyDialog(QtWidgets.QDialog):
 
 
         ####################################################################################
-        # Riqueza de especies en areas de distribucion
+        # Riqueza de especies en areas de distribución
         ####################################################################################
 
         X=X_INITIAL
         Y += HEIGHT + 20
 
-        label_distribucion_especies = QLabel("Riqueza de especies por areas de distribucion", self)
+        label_distribucion_especies = QLabel("Riqueza de especies por áreas de distribución", self)
         label_distribucion_especies.move(X,Y)
         newfont = QFont("Times", 10, QFont.Bold)
         label_distribucion_especies.setFont(newfont)
@@ -356,7 +356,7 @@ class SpecifyDialog(QtWidgets.QDialog):
         Y = 600;
         X = X_INITIAL
 
-        buttonSeleccionar = QPushButton('Seleccionar areas', self)
+        buttonSeleccionar = QPushButton('Seleccionar áreas', self)
         buttonSeleccionar.move(X, MAX_FOOTER)
         buttonSeleccionar.resize(200, 30)
         buttonSeleccionar.clicked.connect(self.selectPolygons)
@@ -417,88 +417,88 @@ class SpecifyDialog(QtWidgets.QDialog):
         ###############################################################################
         if self.checkbox_presencia_total_especies.isChecked():
             if not textedit_presencia_total_especies_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de especies (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de especies (MIN)')
                hayErrores = True
             if not textedit_presencia_total_especies_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de especies (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de especies (MAX)')
                 hayErrores = True
         if self.checkbox_presencia_total_mammalia.isChecked():
             if not textedit_presencia_total_mammalia_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Mammalia (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de Mammalia (MIN)')
                hayErrores = True
             if not textedit_presencia_total_mammalia_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Mammalia (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de Mammalia (MAX)')
                 hayErrores = True
         if self.checkbox_presencia_total_aves.isChecked():
             if not textedit_presencia_total_aves_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Aves (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de Aves (MIN)')
                hayErrores = True
             if not textedit_presencia_total_aves_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Aves (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de Aves (MAX)')
                 hayErrores = True
         if self.checkbox_presencia_total_reptilia.isChecked():
             if not textedit_presencia_total_reptilia_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Reptilia (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de Reptilia (MIN)')
                hayErrores = True
             if not textedit_presencia_total_reptilia_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Reptilia (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de Reptilia (MAX)')
                 hayErrores = True
         if self.checkbox_presencia_total_amphibia.isChecked():
             if not textedit_presencia_total_amphibia_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Amphibia (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de Amphibia (MIN)')
                hayErrores = True
             if not textedit_presencia_total_amphibia_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Amphibia (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de Amphibia (MAX)')
                 hayErrores = True
         if self.checkbox_presencia_total_trees.isChecked():
             if not textedit_presencia_total_trees_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Plantae (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de Plantae (MIN)')
                hayErrores = True
             if not textedit_presencia_total_trees_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Plantae (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la presencia total de Plantae (MAX)')
                 hayErrores = True
 
         if self.checkbox_distribucion_total_especies.isChecked():
             if not textedit_distribucion_total_especies_min.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza por areas de distribucion (MIN)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza por áreas de distribución (MIN)')
                 hayErrores = True
             if not textedit_distribucion_total_especies_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza por areas de distribucion (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza por áreas de distribución (MAX)')
                 hayErrores = True
         if self.checkbox_distribucion_total_mammalia.isChecked():
             if not textedit_distribucion_total_mammalia_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Mammalia - Areas de distribucion (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza total de Mammalia - Áreas de distribución (MIN)')
                hayErrores = True
             if not textedit_distribucion_total_mammalia_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Mammalia - Areas de distribucion (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza total de Mammalia - Áreas de distribución (MAX)')
                 hayErrores = True
         if self.checkbox_distribucion_total_aves.isChecked():
             if not textedit_distribucion_total_aves_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Aves - Areas de distribucion (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza total de Aves - Áreas de distribución (MIN)')
                hayErrores = True
             if not textedit_distribucion_total_aves_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Aves - Areas de distribucion (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza total de Aves - Áreas de distribución (MAX)')
                 hayErrores = True
         if self.checkbox_distribucion_total_reptilia.isChecked():
             if not textedit_distribucion_total_reptilia_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Reptilia - Areas de distribucion (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza total de Reptilia - Áreas de distribución (MIN)')
                hayErrores = True
             if not textedit_distribucion_total_reptilia_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Reptilia - Areas de distribucion (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza total de Reptilia - Áreas de distribución (MAX)')
                 hayErrores = True
         if self.checkbox_distribucion_total_amphibia.isChecked():
             if not textedit_distribucion_total_amphibia_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Amphibia - Areas de distribucion (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza total de Amphibia - Áreas de distribución (MIN)')
                hayErrores = True
             if not textedit_distribucion_total_amphibia_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Amphibia - Areas de distribucion (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza total de Amphibia - Áreas de distribución (MAX)')
                 hayErrores = True
         if self.checkbox_distribucion_total_trees.isChecked():
             if not textedit_distribucion_total_trees_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Plantae - Areas de distribucion (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza total de Plantae - Áreas de distribución (MIN)')
                hayErrores = True
             if not textedit_distribucion_total_trees_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Plantae - Areas de distribucion (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numérico en la riqueza total de Plantae - Áreas de distribución (MAX)')
                 hayErrores = True
 
 

@@ -85,7 +85,7 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
         pic.setPixmap(pixmap)
 
         self.labelHeader = QLabel(self)
-        self.labelHeader.setText("Despliegue de estadisticas")
+        self.labelHeader.setText("Despliegue de estadísticas")
         self.labelHeader.setStyleSheet('color: #076F00')
         self.labelHeader.move(10, 20)
         newfont = QFont("Times", 20, QFont.Bold)
@@ -178,63 +178,63 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
         Y = 70
         X = 450
 
-        self.checkbox_distribucion_total_especies = QCheckBox("Riqueza total de especies por areas de distribucion", self)
+        self.checkbox_distribucion_total_especies = QCheckBox("Riqueza total de especies por áreas de distribución", self)
         self.checkbox_distribucion_total_especies.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_especies_amenazadas = QCheckBox("Riqueza total de especies por areas de distribucion - Amenazadas UICN", self)
+        self.checkbox_distribucion_total_especies_amenazadas = QCheckBox("Riqueza total de especies por áreas de distribución - Amenazadas UICN", self)
         self.checkbox_distribucion_total_especies_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_especies_amenazadas_lcvs = QCheckBox("Riqueza total de especies por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_especies_amenazadas_lcvs = QCheckBox("Riqueza total de especies por áreas de distribución - Amenazadas LCVS", self)
         self.checkbox_distribucion_total_especies_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_mammalia = QCheckBox("Riqueza total de MAMMALIA", self)
+        self.checkbox_distribucion_total_mammalia = QCheckBox("Riqueza total de MAMMALIA por áreas de distribución", self)
         self.checkbox_distribucion_total_mammalia.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_mammalia_amenazadas = QCheckBox("Riqueza total de MAMMALIA por areas de distribucion - Amenazadas UICN", self)
+        self.checkbox_distribucion_total_mammalia_amenazadas = QCheckBox("Riqueza total de MAMMALIA por áreas de distribución - Amenazadas UICN", self)
         self.checkbox_distribucion_total_mammalia_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_mammalia_amenazadas_lcvs = QCheckBox("Riqueza total de MAMMALIA por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_mammalia_amenazadas_lcvs = QCheckBox("Riqueza total de MAMMALIA por áreas de distribución - Amenazadas LCVS", self)
         self.checkbox_distribucion_total_mammalia_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_aves = QCheckBox("Riqueza total de AVES por areas de distribucion", self)
+        self.checkbox_distribucion_total_aves = QCheckBox("Riqueza total de AVES por áreas de distribución", self)
         self.checkbox_distribucion_total_aves.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_aves_amenazadas = QCheckBox("Riqueza total de AVES por areas de distribucion - Amenazadas UICN", self)
+        self.checkbox_distribucion_total_aves_amenazadas = QCheckBox("Riqueza total de AVES por áreas de distribución - Amenazadas UICN", self)
         self.checkbox_distribucion_total_aves_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_aves_amenazadas_lcvs = QCheckBox("Riqueza total de AVES por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_aves_amenazadas_lcvs = QCheckBox("Riqueza total de AVES por áreas de distribución - Amenazadas LCVS", self)
         self.checkbox_distribucion_total_aves_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_reptilia = QCheckBox("Riqueza total de REPTILIA por areas de distribucion", self)
+        self.checkbox_distribucion_total_reptilia = QCheckBox("Riqueza total de REPTILIA por áreas de distribución", self)
         self.checkbox_distribucion_total_reptilia.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_reptilia_amenazadas = QCheckBox("Riqueza total de REPTILIA por areas de distribucion - Amenazadas UICN", self)
+        self.checkbox_distribucion_total_reptilia_amenazadas = QCheckBox("Riqueza total de REPTILIA por áreas de distribución - Amenazadas UICN", self)
         self.checkbox_distribucion_total_reptilia_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_reptilia_amenazadas_lcvs = QCheckBox("Riqueza total de REPTILIA por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_reptilia_amenazadas_lcvs = QCheckBox("Riqueza total de REPTILIA por áreas de distribución - Amenazadas LCVS", self)
         self.checkbox_distribucion_total_reptilia_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_amphibia = QCheckBox("Riqueza total de AMPHIBIA por areas de distribucion", self)
+        self.checkbox_distribucion_total_amphibia = QCheckBox("Riqueza total de AMPHIBIA por áreas de distribución", self)
         self.checkbox_distribucion_total_amphibia.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
         self.checkbox_distribucion_total_amphibia_amenazadas = QCheckBox("Riqueza total de AMPHIBIA - Amenazadas UICN", self)
         self.checkbox_distribucion_total_amphibia_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_amphibia_amenazadas_lcvs = QCheckBox("Riqueza total de AMPHIBIA por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_amphibia_amenazadas_lcvs = QCheckBox("Riqueza total de AMPHIBIA por áreas de distribución - Amenazadas LCVS", self)
         self.checkbox_distribucion_total_amphibia_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_trees = QCheckBox("Riqueza total de PLANTAE por areas de distribucion", self)
+        self.checkbox_distribucion_total_trees = QCheckBox("Riqueza total de PLANTAE por áreas de distribución", self)
         self.checkbox_distribucion_total_trees.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_trees_amenazadas = QCheckBox("Riqueza total de PLANTAE por areas de distribucion - Amenazadas UICN", self)
+        self.checkbox_distribucion_total_trees_amenazadas = QCheckBox("Riqueza total de PLANTAE por áreas de distribución - Amenazadas UICN", self)
         self.checkbox_distribucion_total_trees_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_trees_amenazadas_lcvs = QCheckBox("Riqueza total de PLANTAE por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_trees_amenazadas_lcvs = QCheckBox("Riqueza total de PLANTAE por áreas de distribución - Amenazadas LCVS", self)
         self.checkbox_distribucion_total_trees_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
 
 
