@@ -356,7 +356,7 @@ class SpecifyDialog(QtWidgets.QDialog):
         Y = 600;
         X = X_INITIAL
 
-        buttonSeleccionar = QPushButton('Resaltar poligonos', self)
+        buttonSeleccionar = QPushButton('Seleccionar areas', self)
         buttonSeleccionar.move(X, MAX_FOOTER)
         buttonSeleccionar.resize(200, 30)
         buttonSeleccionar.clicked.connect(self.selectPolygons)
