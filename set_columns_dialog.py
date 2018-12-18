@@ -188,7 +188,7 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.checkbox_distribucion_total_especies_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_mammalia = QCheckBox("Riqueza total de MAMMALIA", self)
+        self.checkbox_distribucion_total_mammalia = QCheckBox("Riqueza total de MAMMALIA por áreas de distribución", self)
         self.checkbox_distribucion_total_mammalia.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
         self.checkbox_distribucion_total_mammalia_amenazadas = QCheckBox("Riqueza total de MAMMALIA por áreas de distribución - Amenazadas UICN", self)
