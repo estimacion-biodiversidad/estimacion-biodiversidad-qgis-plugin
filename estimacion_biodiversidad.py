@@ -180,11 +180,12 @@ class EstimacionBiodiversidad:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = ':/plugins/estimacion_biodiversidad/database.png'
-        self.add_action(
+        actionDatabase = self.add_action(
             icon_path,
             text=self.tr(u'Administracion del Sistema'),
             callback=self.run,
             parent=self.iface.mainWindow())
+        self.iface.addToolBarIcon(actionDatabase)
 
         self.dlg.pb_initDatabase.clicked.connect(self.initDatabase)     
         self.dlg.pb_connectDatabase.clicked.connect(self.connectDatabase)             
