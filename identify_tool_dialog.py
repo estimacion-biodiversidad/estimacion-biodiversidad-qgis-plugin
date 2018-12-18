@@ -108,7 +108,7 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
 
             "spp_amphibia_threatened_richness_occurrence": "Riqueza de Amphibia amenazada UICN\npor registros de presencia",
             "spp_amphibia_threatened_richness_occurrence_names": "Nombres (Amphibia) amenazada UICN\npor registros de presencia",
-            "spp_amphibia_threatened_richness_distribution": "Riqueza de Amphibi amenazada UICN\npor areas de distribucion",
+            "spp_amphibia_threatened_richness_distribution": "Riqueza de Amphibia amenazada UICN\npor areas de distribucion",
             "spp_amphibia_threatened_richness_distribution_names": "Nombres (Amphibia) amenazada UICN\npor areas de distribucion",
 
             "spp_trees_threatened_richness_occurrence": "Riqueza de Plantae amenazada UICN\npor registros de presencia",
@@ -138,7 +138,7 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
 
             "spp_amphibia_lcvs_richness_occurrence": "Riqueza de Amphibia amenazada LCVS\npor registros de presencia",
             "spp_amphibia_lcvs_richness_occurrence_names": "Nombres (Amphibia) amenazada LCVS\npor registros de presencia",
-            "spp_amphibia_lcvs_richness_distribution": "Riqueza de Amphibi amenazada LCVS\npor areas de distribucion",
+            "spp_amphibia_lcvs_richness_distribution": "Riqueza de Amphibia amenazada LCVS\npor areas de distribucion",
             "spp_amphibia_lcvs_richness_distribution_names": "Nombres (Amphibia) amenazada LCVS\npor areas de distribucion",
 
             "spp_trees_lcvs_richness_occurrence": "Riqueza de Plantae amenazada UICN\npor registros de presencia",
