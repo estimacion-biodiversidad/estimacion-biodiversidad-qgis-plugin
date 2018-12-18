@@ -83,7 +83,7 @@ class EstimacionBiodiversidad:
         self.toolbar.setObjectName(u'EstimacionBiodiversidad')
 
         self.columnList = list(())
-        self.fonafifoUrl = "C:/OSGeo4W64/custom_plugins/estimacion-biodiversidad-qgis-plugin/fonafifo_small.png";
+        self.fonafifoUrl = ":/plugins/estimacion_biodiversidad/fonafifo_small.png";
         
         
     # noinspection PyMethodMayBeStatic
