@@ -573,7 +573,7 @@ class EstimacionBiodiversidad:
             QMessageBox.information(None, "", "Could not open PostGIS Database " + self.databaseName + " in " + self.databaseServer)
         else:
             QgsMessageLog.logMessage("PostGIS database " + self.databaseName + " opened in " + self.databaseServer, 'EstimacionBiodiversidad', level=Qgis.Info)
-            QMessageBox.information(None, "", "PostGIS database " + self.databaseName + " opened in " + self.databaseServer)
+            QMessageBox.information(None, "", "Base de datos " + self.databaseName + " abierta en " + self.databaseServer)
             # Update le_databaseInUse
             self.setDatabaseInUseLineEdit(self.databaseName)
             

@@ -320,7 +320,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>estimacion_biodiversidad</string>
+      <string>mammalia_reptilia_amphibia</string>
      </property>
     </widget>
     <widget class="QLabel" name="lb_databaseUser">
