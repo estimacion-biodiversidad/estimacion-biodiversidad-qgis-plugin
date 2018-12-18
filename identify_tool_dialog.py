@@ -163,7 +163,7 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
         pic.setPixmap(pixmap)
 
         self.labelHeader = QLabel(self)
-        self.labelHeader.setText("Despliegue de estadisticas")
+        self.labelHeader.setText("Despliegue de estadísticas")
         self.labelHeader.setStyleSheet('color: #076F00')
         self.labelHeader.move(20, 20)
         newfont = QFont("Times", 20, QFont.Bold)
@@ -175,7 +175,7 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
         self.frame.move(5,55);
         self.frame.resize(1955,5)
 
-        self.buttonDescargar = QPushButton('Descargar estadisticas (CSV)', self)
+        self.buttonDescargar = QPushButton('Descargar estadísticas (CSV)', self)
         self.buttonDescargar.move(20, 590)
         self.buttonDescargar.resize(200, 30)
         self.buttonDescargar.clicked.connect(self.downloadCSV)
