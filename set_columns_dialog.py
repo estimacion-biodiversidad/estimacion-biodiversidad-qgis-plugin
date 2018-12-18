@@ -26,11 +26,11 @@ import os
 
 from PyQt5 import uic
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtWidgets import QPushButton, QLabel, QHBoxLayout, QDialog, QWidget, QVBoxLayout, QScrollArea,\
-    QTableWidget, QTableWidgetItem, QFileDialog, QMessageBox, QCheckBox, QLineEdit
+    QTableWidget, QTableWidgetItem, QFileDialog, QMessageBox, QCheckBox, QLineEdit, QProgressBar, QFrame
 
-from PyQt5.QtCore import QRect, Qt, QFile
+from PyQt5.QtCore import QRect, Qt, QFile, QTimer
 
 from .identify_tool_dialog import IdentifyToolDialog
 
@@ -52,114 +52,190 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
         p = self.palette()
         p.setColor(self.backgroundRole(), Qt.white)
         self.setPalette(p)
-        self.resize(1200,700)
+        self.resize(900,700)
 
         # attributes
         self.filename = None
 
-    def showDialog(self, layer, columnList):
+        self.progress = QProgressBar(self)
+        self.progress.setGeometry(20, 550, 480, 20)
+        self.progress.setRange(0,0)
+        self.progress.setVisible(False)
+
+        self.progressInfo = QLabel(self)
+        self.progressInfo.setText("Generando el reporte, por favor espere...")
+        self.progressInfo.move(20, 570)
+        newfont = QFont("Arial", 10)
+        newfont.setItalic(True)
+        self.progressInfo.setFont(newfont)
+        self.progressInfo.setVisible(False)
+
+    def showDialog(self, layer, columnList, fonafifoUrl):
         self.layer=layer
         self.columnList=columnList
+        self.fonafifoUrl = fonafifoUrl
+
+        MAX_FOOTER = 600
+
+        # FONAFIFO logo
+        pic = QLabel(self)
+        pic.setGeometry(600, MAX_FOOTER-30, 150, 50)
+        pixmap = QPixmap()
+        pixmap.load(fonafifoUrl);
+        pic.setPixmap(pixmap)
 
         self.labelHeader = QLabel(self)
         self.labelHeader.setText("Despliegue de estadisticas")
-        self.labelHeader.move(20, 20)
+        self.labelHeader.setStyleSheet('color: #076F00')
+        self.labelHeader.move(10, 20)
         newfont = QFont("Times", 20, QFont.Bold)
         self.labelHeader.setFont(newfont)
+
+        self.frame = QFrame(self)
+        self.frame.setFrameShape(QFrame.HLine)
+        self.frame.setFrameShadow(QFrame.Sunken)
+        self.frame.move(5,55);
+        self.frame.resize(1955,5)
+
 
         self.buttonDescargar = QPushButton('Cargar Tabla', self)
         self.buttonDescargar.move(20, 590)
         self.buttonDescargar.resize(200, 30)
-        self.buttonDescargar.clicked.connect(self.cargarTabla)
+        self.buttonDescargar.clicked.connect(self.looping)
 
         self.buttonCerrar = QPushButton('Cerrar', self)
-        self.buttonCerrar.move(220, 590)
+        self.buttonCerrar.move(270, 590)
         self.buttonCerrar.resize(200, 30)
         self.buttonCerrar.clicked.connect(self.close)
 
         X = 10
-        Y=50
+        Y = 70
 
         HEIGHT=30
-        WIDTH_LABEL=300
+        WIDTH_LABEL=400
         INCREMENT_Y=20
 
 
-        self.checkbox_presencia_total_especies = QCheckBox("Riqueza total de especies", self)
+        self.checkbox_presencia_total_especies = QCheckBox("Riqueza total de especies por registros de presencia", self)
         self.checkbox_presencia_total_especies.setGeometry(X,Y,WIDTH_LABEL,HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_presencia_total_especies_amenazadas = QCheckBox("Riqueza total de especies - Amenazadas", self)
+        self.checkbox_presencia_total_especies_amenazadas = QCheckBox("Riqueza total de especies por registros de presencia - Amenazadas UICN", self)
         self.checkbox_presencia_total_especies_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-
-
-        self.checkbox_presencia_total_mammalia = QCheckBox("Riqueza total de MAMMALIA", self)
+        self.checkbox_presencia_total_especies_amenazadas_lcvs = QCheckBox("Riqueza total de especies por registros de presencia - Amenazadas LCVS", self)
+        self.checkbox_presencia_total_especies_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
+        Y += INCREMENT_Y
+        Y += INCREMENT_Y
+        self.checkbox_presencia_total_mammalia = QCheckBox("Riqueza total de MAMMALIA por registros de presencia", self)
         self.checkbox_presencia_total_mammalia.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_presencia_total_mammalia_amenazadas = QCheckBox("Riqueza total de MAMMALIA - Amenazadas", self)
+        self.checkbox_presencia_total_mammalia_amenazadas = QCheckBox("Riqueza total de MAMMALIA por registros de presencia - Amenazadas UICN", self)
         self.checkbox_presencia_total_mammalia_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_presencia_total_aves = QCheckBox("Riqueza total de AVES", self)
+        self.checkbox_presencia_total_mammalia_amenazadas_lcvs = QCheckBox("Riqueza total de MAMMALIA por registros de presencia - Amenazadas LCVS", self)
+        self.checkbox_presencia_total_mammalia_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
+        Y += INCREMENT_Y
+        Y += INCREMENT_Y
+        self.checkbox_presencia_total_aves = QCheckBox("Riqueza total de AVES por registros de presencia", self)
         self.checkbox_presencia_total_aves.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_presencia_total_aves_amenazadas = QCheckBox("Riqueza total de AVES - Amenazadas", self)
+        self.checkbox_presencia_total_aves_amenazadas = QCheckBox("Riqueza total de AVES por registros de presencia - Amenazadas UICN", self)
         self.checkbox_presencia_total_aves_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_presencia_total_reptilia = QCheckBox("Riqueza total de REPTILIA", self)
+        self.checkbox_presencia_total_aves_amenazadas_lcvs = QCheckBox("Riqueza total de AVES por registros de presencia - Amenazadas LCVS", self)
+        self.checkbox_presencia_total_aves_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
+        Y += INCREMENT_Y
+        Y += INCREMENT_Y
+        self.checkbox_presencia_total_reptilia = QCheckBox("Riqueza total de REPTILIA por registros de presencia", self)
         self.checkbox_presencia_total_reptilia.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_presencia_total_reptilia_amenazadas = QCheckBox("Riqueza total de REPTILIA - Amenazadas", self)
+        self.checkbox_presencia_total_reptilia_amenazadas = QCheckBox("Riqueza total de REPTILIA por registros de presencia - Amenazadas UICN", self)
         self.checkbox_presencia_total_reptilia_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_presencia_total_amphibia = QCheckBox("Riqueza total de AMPHIBIA", self)
+        self.checkbox_presencia_total_reptilia_amenazadas_lcvs = QCheckBox("Riqueza total de REPTILIA por registros de presencia - Amenazadas LCVS", self)
+        self.checkbox_presencia_total_reptilia_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
+        Y += INCREMENT_Y
+        Y += INCREMENT_Y
+        self.checkbox_presencia_total_amphibia = QCheckBox("Riqueza total de AMPHIBIA por registros de presencia", self)
         self.checkbox_presencia_total_amphibia.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_presencia_total_amphibia_amenazadas = QCheckBox("Riqueza total de AMPHIBIA - Amenazadas", self)
+        self.checkbox_presencia_total_amphibia_amenazadas = QCheckBox("Riqueza total de AMPHIBIA por registros de presencia - Amenazadas UICN", self)
         self.checkbox_presencia_total_amphibia_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_presencia_total_trees = QCheckBox("Riqueza total de ARBOLES", self)
+        self.checkbox_presencia_total_amphibia_amenazadas_lcvs = QCheckBox("Riqueza total de AMPHIBIA por registros de presencia - Amenazadas LCVS", self)
+        self.checkbox_presencia_total_amphibia_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
+        Y += INCREMENT_Y
+        Y += INCREMENT_Y
+        self.checkbox_presencia_total_trees = QCheckBox("Riqueza total de PLANTAE por registros de presencia", self)
         self.checkbox_presencia_total_trees.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_presencia_total_trees_amenazadas = QCheckBox("Riqueza total de ARBOLES - Amenazadas", self)
+        self.checkbox_presencia_total_trees_amenazadas = QCheckBox("Riqueza total de PLANTAE por registros de presencia - Amenazadas UICN", self)
         self.checkbox_presencia_total_trees_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
+        self.checkbox_presencia_total_trees_amenazadas_lcvs = QCheckBox("Riqueza total de PLANTAE por registros de presencia - Amenazadas LCVS", self)
+        self.checkbox_presencia_total_trees_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
 
-        self.checkbox_distribucion_total_especies = QCheckBox("Riqueza total de especies", self)
+        Y = 70
+        X = 450
+
+        self.checkbox_distribucion_total_especies = QCheckBox("Riqueza total de especies por areas de distribucion", self)
         self.checkbox_distribucion_total_especies.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_especies_amenazadas = QCheckBox("Riqueza total de especies - Amenazadas", self)
+        self.checkbox_distribucion_total_especies_amenazadas = QCheckBox("Riqueza total de especies por areas de distribucion - Amenazadas UICN", self)
         self.checkbox_distribucion_total_especies_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-
+        self.checkbox_distribucion_total_especies_amenazadas_lcvs = QCheckBox("Riqueza total de especies por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_especies_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
+        Y += INCREMENT_Y
+        Y += INCREMENT_Y
         self.checkbox_distribucion_total_mammalia = QCheckBox("Riqueza total de MAMMALIA", self)
         self.checkbox_distribucion_total_mammalia.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_mammalia_amenazadas = QCheckBox("Riqueza total de MAMMALIA - Amenazadas", self)
+        self.checkbox_distribucion_total_mammalia_amenazadas = QCheckBox("Riqueza total de MAMMALIA por areas de distribucion - Amenazadas UICN", self)
         self.checkbox_distribucion_total_mammalia_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_aves = QCheckBox("Riqueza total de AVES", self)
+        self.checkbox_distribucion_total_mammalia_amenazadas_lcvs = QCheckBox("Riqueza total de MAMMALIA por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_mammalia_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
+        Y += INCREMENT_Y
+        Y += INCREMENT_Y
+        self.checkbox_distribucion_total_aves = QCheckBox("Riqueza total de AVES por areas de distribucion", self)
         self.checkbox_distribucion_total_aves.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_aves_amenazadas = QCheckBox("Riqueza total de AVES - Amenazadas", self)
+        self.checkbox_distribucion_total_aves_amenazadas = QCheckBox("Riqueza total de AVES por areas de distribucion - Amenazadas UICN", self)
         self.checkbox_distribucion_total_aves_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_reptilia = QCheckBox("Riqueza total de REPTILIA", self)
+        self.checkbox_distribucion_total_aves_amenazadas_lcvs = QCheckBox("Riqueza total de AVES por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_aves_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
+        Y += INCREMENT_Y
+        Y += INCREMENT_Y
+        self.checkbox_distribucion_total_reptilia = QCheckBox("Riqueza total de REPTILIA por areas de distribucion", self)
         self.checkbox_distribucion_total_reptilia.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_reptilia_amenazadas = QCheckBox("Riqueza total de REPTILIA - Amenazadas", self)
+        self.checkbox_distribucion_total_reptilia_amenazadas = QCheckBox("Riqueza total de REPTILIA por areas de distribucion - Amenazadas UICN", self)
         self.checkbox_distribucion_total_reptilia_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_amphibia = QCheckBox("Riqueza total de AMPHIBIA", self)
+        self.checkbox_distribucion_total_reptilia_amenazadas_lcvs = QCheckBox("Riqueza total de REPTILIA por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_reptilia_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
+        Y += INCREMENT_Y
+        Y += INCREMENT_Y
+        self.checkbox_distribucion_total_amphibia = QCheckBox("Riqueza total de AMPHIBIA por areas de distribucion", self)
         self.checkbox_distribucion_total_amphibia.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_amphibia_amenazadas = QCheckBox("Riqueza total de AMPHIBIA - Amenazadas", self)
+        self.checkbox_distribucion_total_amphibia_amenazadas = QCheckBox("Riqueza total de AMPHIBIA - Amenazadas UICN", self)
         self.checkbox_distribucion_total_amphibia_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_trees = QCheckBox("Riqueza total de ARBOLES", self)
+        self.checkbox_distribucion_total_amphibia_amenazadas_lcvs = QCheckBox("Riqueza total de AMPHIBIA por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_amphibia_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
+        Y += INCREMENT_Y
+        Y += INCREMENT_Y
+        self.checkbox_distribucion_total_trees = QCheckBox("Riqueza total de PLANTAE por areas de distribucion", self)
         self.checkbox_distribucion_total_trees.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_trees_amenazadas = QCheckBox("Riqueza total de ARBOLES - Amenazadas", self)
+        self.checkbox_distribucion_total_trees_amenazadas = QCheckBox("Riqueza total de PLANTAE por areas de distribucion - Amenazadas UICN", self)
         self.checkbox_distribucion_total_trees_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
+        Y += INCREMENT_Y
+        self.checkbox_distribucion_total_trees_amenazadas_lcvs = QCheckBox("Riqueza total de PLANTAE por areas de distribucion - Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_trees_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
 
 
 
@@ -168,8 +244,18 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.show()
 
+    def looping(self):
+
+        self.progressInfo.setVisible(True)
+        self.progress.setVisible(True)
+        self.looptimer = QTimer()
+        self.looptimer.setSingleShot(True)
+        self.looptimer.timeout.connect(self.cargarTabla)
+        self.looptimer.start(5000)
+
 
     def cargarTabla(self):
+
 
         self.columnList.clear()
 
@@ -179,40 +265,132 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
         if self.checkbox_presencia_total_especies.isChecked():
             self.columnList.append("spp_all_richness_occurrence")
             self.columnList.append("spp_all_richness_occurrence_names")
+        if self.checkbox_presencia_total_especies_amenazadas.isChecked():
+            self.columnList.append("spp_all_threatened_richness_occurrence")
+            self.columnList.append("spp_all_threatened_richness_occurrence_names")
+        if self.checkbox_presencia_total_especies_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_all_lcvs_richness_occurrence")
+            self.columnList.append("spp_all_lcvs_richness_occurrence_names")
+
         if self.checkbox_presencia_total_mammalia.isChecked():
             self.columnList.append("spp_mammalia_richness_occurrence")
             self.columnList.append("spp_mammalia_richness_occurrence_names")
+        if self.checkbox_presencia_total_mammalia_amenazadas.isChecked():
+            self.columnList.append("spp_mammalia_threatened_richness_occurrence")
+            self.columnList.append("spp_mammalia_threatened_richness_occurrence_names")
+        if self.checkbox_presencia_total_mammalia_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_mammalia_lcvs_richness_occurrence")
+            self.columnList.append("spp_mammalia_lcvs_richness_occurrence_names")
+
+
         if self.checkbox_presencia_total_aves.isChecked():
             self.columnList.append("spp_aves_richness_occurrence")
             self.columnList.append("spp_aves_richness_occurrence_names")
+        if self.checkbox_presencia_total_aves_amenazadas.isChecked():
+            self.columnList.append("spp_aves_threatened_richness_occurrence")
+            self.columnList.append("spp_aves_threatened_richness_occurrence_names")
+        if self.checkbox_presencia_total_aves_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_aves_lcvs_richness_occurrence")
+            self.columnList.append("spp_aves_lcvs_richness_occurrence_names")
+
         if self.checkbox_presencia_total_reptilia.isChecked():
             self.columnList.append("spp_reptilia_richness_occurrence")
             self.columnList.append("spp_reptilia_richness_occurrence_names")
+        if self.checkbox_presencia_total_reptilia_amenazadas.isChecked():
+            self.columnList.append("spp_reptilia_threatened_richness_occurrence")
+            self.columnList.append("spp_reptilia_threatened_richness_occurrence_names")
+        if self.checkbox_presencia_total_reptilia_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_reptilia_lcvs_richness_occurrence")
+            self.columnList.append("spp_reptilia_lcvs_richness_occurrence_names")
+
+
         if self.checkbox_presencia_total_amphibia.isChecked():
             self.columnList.append("spp_amphibia_richness_occurrence")
             self.columnList.append("spp_amphibia_richness_occurrence_names")
+        if self.checkbox_presencia_total_amphibia_amenazadas.isChecked():
+            self.columnList.append("spp_amphibia_threatened_richness_occurrence")
+            self.columnList.append("spp_amphibia_threatened_richness_occurrence_names")
+        if self.checkbox_presencia_total_amphibia_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_amphibia_lcvs_richness_occurrence")
+            self.columnList.append("spp_amphibia_lcvs_richness_occurrence_names")
+
+
         if self.checkbox_presencia_total_trees.isChecked():
             self.columnList.append("spp_trees_richness_occurrence")
             self.columnList.append("spp_trees_richness_occurrence_names")
+        if self.checkbox_presencia_total_trees_amenazadas.isChecked():
+            self.columnList.append("spp_trees_threatened_richness_occurrence")
+            self.columnList.append("spp_trees_threatened_richness_occurrence_names")
+        if self.checkbox_presencia_total_trees_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_trees_lcvs_richness_occurrence")
+            self.columnList.append("spp_trees_lcvs_richness_occurrence_names")
+
+        # DISTRIBUTION
 
         if self.checkbox_distribucion_total_especies.isChecked():
             self.columnList.append("spp_all_richness_distribution")
             self.columnList.append("spp_all_richness_distribution_names")
+        if self.checkbox_distribucion_total_especies_amenazadas.isChecked():
+            self.columnList.append("spp_all_threatened_richness_distribution")
+            self.columnList.append("spp_all_threatened_richness_distribution_names")
+        if self.checkbox_distribucion_total_especies_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_all_lcvs_richness_distribution")
+            self.columnList.append("spp_all_lcvs_richness_distribution_names")
+
+
         if self.checkbox_distribucion_total_mammalia.isChecked():
             self.columnList.append("spp_mammalia_richness_distribution")
             self.columnList.append("spp_mammalia_richness_distribution_names")
+        if self.checkbox_distribucion_total_mammalia_amenazadas.isChecked():
+            self.columnList.append("spp_mammalia_threatened_richness_distribution")
+            self.columnList.append("spp_mammalia_threatened_richness_distribution_names")
+        if self.checkbox_distribucion_total_mammalia_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_mammalia_lcvs_richness_distribution")
+            self.columnList.append("spp_mammalia_lcvs_richness_distribution_names")
+
+
         if self.checkbox_distribucion_total_aves.isChecked():
             self.columnList.append("spp_aves_richness_distribution")
             self.columnList.append("spp_aves_richness_distribution_names")
+        if self.checkbox_distribucion_total_aves_amenazadas.isChecked():
+            self.columnList.append("spp_aves_threatened_richness_distribution")
+            self.columnList.append("spp_aves_threatened_richness_distribution_names")
+        if self.checkbox_distribucion_total_aves_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_aves_lcvs_richness_distribution")
+            self.columnList.append("spp_aves_lcvs_richness_distribution_names")
+
+
         if self.checkbox_distribucion_total_reptilia.isChecked():
             self.columnList.append("spp_reptilia_richness_distribution")
             self.columnList.append("spp_reptilia_richness_distribution_names")
+        if self.checkbox_distribucion_total_reptilia_amenazadas.isChecked():
+            self.columnList.append("spp_reptilia_threatened_richness_distribution")
+            self.columnList.append("spp_reptilia_threatened_richness_distribution_names")
+        if self.checkbox_distribucion_total_reptilia_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_reptilia_lcvs_richness_distribution")
+            self.columnList.append("spp_reptilia_lcvs_richness_distribution_names")
+
+
         if self.checkbox_distribucion_total_amphibia.isChecked():
             self.columnList.append("spp_amphibia_richness_distribution")
             self.columnList.append("spp_amphibia_richness_distribution_names")
+        if self.checkbox_distribucion_total_amphibia_amenazadas.isChecked():
+            self.columnList.append("spp_amphibia_threatened_richness_distribution")
+            self.columnList.append("spp_amphibia_threatened_richness_distribution_names")
+        if self.checkbox_distribucion_total_amphibia_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_amphibia_lcvs_richness_distribution")
+            self.columnList.append("spp_amphibia_lcvs_richness_distribution_names")
+
+
         if self.checkbox_distribucion_total_trees.isChecked():
             self.columnList.append("spp_trees_richness_distribution")
             self.columnList.append("spp_trees_richness_distribution_names")
+        if self.checkbox_distribucion_total_trees_amenazadas.isChecked():
+            self.columnList.append("spp_trees_threatened_richness_distribution")
+            self.columnList.append("spp_trees_threatened_richness_distribution_names")
+        if self.checkbox_distribucion_total_trees_amenazadas_lcvs.isChecked():
+            self.columnList.append("spp_trees_lcvs_richness_distribution")
+            self.columnList.append("spp_trees_lcvs_richness_distribution_names")
 
         self.dlgIdentificarPoligono = IdentifyToolDialog()
-        self.dlgIdentificarPoligono.showDialog(self.layer, self.columnList)
+        self.dlgIdentificarPoligono.showDialog(self.layer, self.columnList, self.progress, self.progressInfo, self.fonafifoUrl)

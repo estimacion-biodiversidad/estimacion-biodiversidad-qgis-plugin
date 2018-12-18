@@ -26,8 +26,8 @@ import os
 
 from PyQt5 import uic
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QCheckBox, QLineEdit, QHBoxLayout, QFileDialog, QLabel, QPushButton, QMessageBox
+from PyQt5.QtGui import QFont, QPixmap
+from PyQt5.QtWidgets import QCheckBox, QLineEdit, QHBoxLayout, QFileDialog, QLabel, QPushButton, QMessageBox, QFrame
 
 from PyQt5.QtCore import QRect, Qt, QFile
 
@@ -48,14 +48,16 @@ class SpecifyDialog(QtWidgets.QDialog):
         p = self.palette()
         p.setColor(self.backgroundRole(), Qt.white)
         self.setPalette(p)
-        self.resize(600,700)
+        self.resize(800,750)
 
         # attributes
         self.filename = None
 
-    def showDialog(self, layer, columnList):
+    def showDialog(self, layer, columnList, fonafifoUrl):
         self.layer = layer;
         self.columnList = columnList
+
+        MAX_FOOTER = 680
 
         X_INITIAL = 10
 
@@ -63,26 +65,50 @@ class SpecifyDialog(QtWidgets.QDialog):
         WIDTH_LABEL=150
         WIDTH_INPUT=50
         X=X_INITIAL
-        Y=20
+        Y=70
 
         ####################################################################################
         # Riqueza de especies en registros de presencia
         ####################################################################################
 
+        # FONAFIFO logo
+        pic = QLabel(self)
+        pic.setGeometry(600, MAX_FOOTER - 30, 150, 50)
+        pixmap = QPixmap()
+        pixmap.load(fonafifoUrl);
+        pic.setPixmap(pixmap)
+
+        self.labelHeader = QLabel(self)
+        self.labelHeader.setText("Busqueda por criterios")
+        self.labelHeader.setStyleSheet('color: #076F00')
+        self.labelHeader.move(10, 20)
+        newfont = QFont("Times", 20, QFont.Bold)
+        self.labelHeader.setFont(newfont)
+
+        self.frame = QFrame(self)
+        self.frame.setFrameShape(QFrame.HLine)
+        self.frame.setFrameShadow(QFrame.Sunken)
+        self.frame.move(5,55);
+        self.frame.resize(1955,5)
+
+
         label_presencia_especies = QLabel("Riqueza de especies en registros de presencia", self)
         label_presencia_especies.move(X,Y)
+        label_presencia_especies.setStyleSheet('color: #0A9000')
         newfont = QFont("Times", 10, QFont.Bold)
         label_presencia_especies.setFont(newfont)
 
         label_presencia_especies_MIN = QLabel("MIN", self)
-        label_presencia_especies_MIN.move(X+410,Y+15)
+        label_presencia_especies_MIN.move(X+610,Y+15)
         newfont = QFont("Times", 8, QFont.Bold)
         label_presencia_especies_MIN.setFont(newfont)
+        label_presencia_especies_MIN.setStyleSheet('color: #0A9000')
 
         label_presencia_especies_MAX = QLabel("MAX", self)
-        label_presencia_especies_MAX.move(X+470,Y+15)
+        label_presencia_especies_MAX.move(X+670,Y+15)
         newfont = QFont("Times", 8, QFont.Bold)
         label_presencia_especies_MAX.setFont(newfont)
+        label_presencia_especies_MAX.setStyleSheet('color: #0A9000')
 
 
         X=X_INITIAL
@@ -91,8 +117,11 @@ class SpecifyDialog(QtWidgets.QDialog):
         self.checkbox_presencia_total_especies = QCheckBox("Riqueza total de especies", self)
         self.checkbox_presencia_total_especies.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_presencia_total_especies_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_presencia_total_especies_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_presencia_total_especies_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_presencia_total_especies_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_presencia_total_especies_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_presencia_total_especies_min = QLineEdit(self)
         self.textedit_presencia_total_especies_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -106,8 +135,11 @@ class SpecifyDialog(QtWidgets.QDialog):
         self.checkbox_presencia_total_mammalia = QCheckBox("Riqueza total de MAMMALIA", self)
         self.checkbox_presencia_total_mammalia.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_presencia_total_mammalia_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_presencia_total_mammalia_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_presencia_total_mammalia_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_presencia_total_mammalia_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_presencia_total_mammalia_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_presencia_total_mammalia_min = QLineEdit(self)
         self.textedit_presencia_total_mammalia_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -121,8 +153,11 @@ class SpecifyDialog(QtWidgets.QDialog):
         self.checkbox_presencia_total_aves = QCheckBox("Riqueza total de AVES", self)
         self.checkbox_presencia_total_aves.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_presencia_total_aves_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_presencia_total_aves_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_presencia_total_aves_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_presencia_total_aves_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_presencia_total_aves_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_presencia_total_aves_min = QLineEdit(self)
         self.textedit_presencia_total_aves_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -136,8 +171,11 @@ class SpecifyDialog(QtWidgets.QDialog):
         self.checkbox_presencia_total_reptilia = QCheckBox("Riqueza total de REPTILIA", self)
         self.checkbox_presencia_total_reptilia.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_presencia_total_reptilia_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_presencia_total_reptilia_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_presencia_total_reptilia_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_presencia_total_reptilia_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_presencia_total_reptilia_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_presencia_total_reptilia_min = QLineEdit(self)
         self.textedit_presencia_total_reptilia_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -151,8 +189,11 @@ class SpecifyDialog(QtWidgets.QDialog):
         self.checkbox_presencia_total_amphibia = QCheckBox("Riqueza total de AMPHIBIA", self)
         self.checkbox_presencia_total_amphibia.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_presencia_total_amphibia_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_presencia_total_amphibia_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_presencia_total_amphibia_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_presencia_total_amphibia_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_presencia_total_amphibia_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_presencia_total_amphibia_min = QLineEdit(self)
         self.textedit_presencia_total_amphibia_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -163,11 +204,14 @@ class SpecifyDialog(QtWidgets.QDialog):
         Y+=HEIGHT+10
         X=X_INITIAL
 
-        self.checkbox_presencia_total_trees = QCheckBox("Riqueza total de ARBOLES", self)
+        self.checkbox_presencia_total_trees = QCheckBox("Riqueza total de PLANTAE", self)
         self.checkbox_presencia_total_trees.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_presencia_total_trees_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_presencia_total_trees_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_presencia_total_trees_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_presencia_total_trees_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_presencia_total_trees_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_presencia_total_trees_min = QLineEdit(self)
         self.textedit_presencia_total_trees_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -187,16 +231,19 @@ class SpecifyDialog(QtWidgets.QDialog):
         label_distribucion_especies.move(X,Y)
         newfont = QFont("Times", 10, QFont.Bold)
         label_distribucion_especies.setFont(newfont)
+        label_distribucion_especies.setStyleSheet('color: #0A9000')
 
         label_distribucion_especies_MIN = QLabel("MIN", self)
-        label_distribucion_especies_MIN.move(X+410,Y+15)
+        label_distribucion_especies_MIN.move(X+610,Y+15)
         newfont = QFont("Times", 8, QFont.Bold)
         label_distribucion_especies_MIN.setFont(newfont)
+        label_distribucion_especies_MIN.setStyleSheet('color: #0A9000')
 
         label_distribucion_especies_MAX = QLabel("MAX", self)
-        label_distribucion_especies_MAX.move(X+470,Y+15)
+        label_distribucion_especies_MAX.move(X+670,Y+15)
         newfont = QFont("Times", 8, QFont.Bold)
         label_distribucion_especies_MAX.setFont(newfont)
+        label_distribucion_especies_MAX.setStyleSheet('color: #0A9000')
 
         X=X_INITIAL
         Y += HEIGHT + 20
@@ -204,8 +251,11 @@ class SpecifyDialog(QtWidgets.QDialog):
         self.checkbox_distribucion_total_especies = QCheckBox("Riqueza total de especies", self)
         self.checkbox_distribucion_total_especies.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_distribucion_total_especies_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_distribucion_total_especies_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_distribucion_total_especies_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_distribucion_total_especies_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_especies_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_distribucion_total_especies_min = QLineEdit(self)
         self.textedit_distribucion_total_especies_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -219,8 +269,11 @@ class SpecifyDialog(QtWidgets.QDialog):
         self.checkbox_distribucion_total_mammalia = QCheckBox("Riqueza total de MAMMALIA", self)
         self.checkbox_distribucion_total_mammalia.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_distribucion_total_mammalia_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_distribucion_total_mammalia_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_distribucion_total_mammalia_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_distribucion_total_mammalia_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_mammalia_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_distribucion_total_mammalia_min = QLineEdit(self)
         self.textedit_distribucion_total_mammalia_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -234,8 +287,11 @@ class SpecifyDialog(QtWidgets.QDialog):
         self.checkbox_distribucion_total_aves = QCheckBox("Riqueza total de AVES", self)
         self.checkbox_distribucion_total_aves.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_distribucion_total_aves_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_distribucion_total_aves_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_distribucion_total_aves_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_distribucion_total_aves_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_aves_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_distribucion_total_aves_min = QLineEdit(self)
         self.textedit_distribucion_total_aves_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -249,8 +305,11 @@ class SpecifyDialog(QtWidgets.QDialog):
         self.checkbox_distribucion_total_reptilia = QCheckBox("Riqueza total de REPTILIA", self)
         self.checkbox_distribucion_total_reptilia.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_distribucion_total_reptilia_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_distribucion_total_reptilia_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_distribucion_total_reptilia_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_distribucion_total_reptilia_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_reptilia_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_distribucion_total_reptilia_min = QLineEdit(self)
         self.textedit_distribucion_total_reptilia_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -264,8 +323,11 @@ class SpecifyDialog(QtWidgets.QDialog):
         self.checkbox_distribucion_total_amphibia = QCheckBox("Riqueza total de AMPHIBIA", self)
         self.checkbox_distribucion_total_amphibia.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_distribucion_total_amphibia_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_distribucion_total_amphibia_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_distribucion_total_amphibia_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_distribucion_total_amphibia_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_amphibia_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_distribucion_total_amphibia_min = QLineEdit(self)
         self.textedit_distribucion_total_amphibia_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -276,11 +338,14 @@ class SpecifyDialog(QtWidgets.QDialog):
         Y+=HEIGHT+10
         X=X_INITIAL
 
-        self.checkbox_distribucion_total_trees = QCheckBox("Riqueza total de ARBOLES", self)
+        self.checkbox_distribucion_total_trees = QCheckBox("Riqueza total de PLANTAE", self)
         self.checkbox_distribucion_total_trees.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
-        self.checkbox_distribucion_total_trees_amenazadas = QCheckBox("Amenazadas", self)
+        self.checkbox_distribucion_total_trees_amenazadas = QCheckBox("Amenazadas UICN", self)
         self.checkbox_distribucion_total_trees_amenazadas.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
+        X += WIDTH_LABEL + 50
+        self.checkbox_distribucion_total_trees_amenazadas_lcvs = QCheckBox("Amenazadas LCVS", self)
+        self.checkbox_distribucion_total_trees_amenazadas_lcvs.setGeometry(X,Y,WIDTH_LABEL+50,HEIGHT)
         X += WIDTH_LABEL + 50
         self.textedit_distribucion_total_trees_min = QLineEdit(self)
         self.textedit_distribucion_total_trees_min.setGeometry(X,Y,WIDTH_INPUT,HEIGHT)
@@ -292,14 +357,14 @@ class SpecifyDialog(QtWidgets.QDialog):
         X = X_INITIAL
 
         buttonSeleccionar = QPushButton('Resaltar poligonos', self)
-        buttonSeleccionar.move(X, Y)
+        buttonSeleccionar.move(X, MAX_FOOTER)
         buttonSeleccionar.resize(200, 30)
         buttonSeleccionar.clicked.connect(self.selectPolygons)
 
         X = X + 250;
 
         buttonCerrar = QPushButton('Cerrar', self)
-        buttonCerrar.move(X, Y)
+        buttonCerrar.move(X, MAX_FOOTER)
         buttonCerrar.resize(200, 30)
         buttonCerrar.clicked.connect(self.close)
 
@@ -387,10 +452,10 @@ class SpecifyDialog(QtWidgets.QDialog):
                 hayErrores = True
         if self.checkbox_presencia_total_trees.isChecked():
             if not textedit_presencia_total_trees_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Arboles (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Plantae (MIN)')
                hayErrores = True
             if not textedit_presencia_total_trees_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Arboles (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la presencia total de Plantae (MAX)')
                 hayErrores = True
 
         if self.checkbox_distribucion_total_especies.isChecked():
@@ -430,10 +495,10 @@ class SpecifyDialog(QtWidgets.QDialog):
                 hayErrores = True
         if self.checkbox_distribucion_total_trees.isChecked():
             if not textedit_distribucion_total_trees_min.isdigit():
-               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Arboles - Areas de distribucion (MIN)')
+               QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Plantae - Areas de distribucion (MIN)')
                hayErrores = True
             if not textedit_distribucion_total_trees_max.isdigit():
-                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Arboles - Areas de distribucion (MAX)')
+                QMessageBox.about(self, 'Alerta!', 'Valor no numerico en la riqueza total de Plantae - Areas de distribucion (MAX)')
                 hayErrores = True
 
 
@@ -448,6 +513,12 @@ class SpecifyDialog(QtWidgets.QDialog):
                 if self.checkbox_presencia_total_especies.isChecked() & self.checkbox_presencia_total_especies_amenazadas.isChecked():
                     if (feature["spp_all_threatened_richness_occurrence"] >= int(textedit_presencia_total_especies_min)) \
                             & (feature["spp_all_threatened_richness_occurrence"] <= int(textedit_presencia_total_especies_max)):
+                        self.layer.select(feature.id())
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_presencia_total_especies.isChecked() & self.checkbox_presencia_total_especies_amenazadas_lcvs.isChecked():
+                    if (feature["spp_all_lcvs_richness_occurrence"] >= int(textedit_presencia_total_especies_min)) \
+                            & (feature["spp_all_lcvs_richness_occurrence"] <= int(textedit_presencia_total_especies_max)):
                         self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
@@ -465,16 +536,18 @@ class SpecifyDialog(QtWidgets.QDialog):
                     if (feature["spp_mammalia_threatened_richness_occurrence"] >= int(textedit_presencia_total_mammalia_min)) \
                             & (feature["spp_mammalia_threatened_richness_occurrence"] <= int(textedit_presencia_total_mammalia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_mammalia_threatened_richness_occurrence")
-                        self.insertIntoColumnList("spp_mammalia_threatened_richness_occurrence_names")
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_presencia_total_mammalia.isChecked() & self.checkbox_presencia_total_mammalia_amenazadas_lcvs.isChecked():
+                    if (feature["spp_mammalia_lcvs_richness_occurrence"] >= int(textedit_presencia_total_mammalia_min)) \
+                            & (feature["spp_mammalia_lcvs_richness_occurrence"] <= int(textedit_presencia_total_mammalia_max)):
+                        self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
                 elif self.checkbox_presencia_total_mammalia.isChecked():
                     if (feature["spp_mammalia_richness_occurrence"] >= int(textedit_presencia_total_mammalia_min)) \
                             & (feature["spp_mammalia_richness_occurrence"] <= int(textedit_presencia_total_mammalia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_mammalia_richness_occurrence")
-                        self.insertIntoColumnList("spp_mammalia_richness_occurrence_names")
                         hayRegistros = True
 
                 ###############################################################################
@@ -485,16 +558,18 @@ class SpecifyDialog(QtWidgets.QDialog):
                     if (feature["spp_aves_threatened_richness_occurrence"] >= int(textedit_presencia_total_aves_min)) \
                             & (feature["spp_aves_threatened_richness_occurrence"] <= int(textedit_presencia_total_aves_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_aves_threatened_richness_occurrence")
-                        self.insertIntoColumnList("spp_aves_threatened_richness_occurrence_names")
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_presencia_total_aves.isChecked() & self.checkbox_presencia_total_aves_amenazadas_lcvs.isChecked():
+                    if (feature["spp_aves_lcvs_richness_occurrence"] >= int(textedit_presencia_total_aves_min)) \
+                            & (feature["spp_aves_lcvs_richness_occurrence"] <= int(textedit_presencia_total_aves_max)):
+                        self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
                 elif self.checkbox_presencia_total_aves.isChecked():
                     if (feature["spp_aves_richness_occurrence"] >= int(textedit_presencia_total_aves_min)) \
                             & (feature["spp_aves_richness_occurrence"] <= int(textedit_presencia_total_aves_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_aves_richness_occurrence")
-                        self.insertIntoColumnList("spp_aves_richness_occurrence_names")
                         hayRegistros = True
 
                 ###############################################################################
@@ -505,16 +580,18 @@ class SpecifyDialog(QtWidgets.QDialog):
                     if (feature["spp_reptilia_threatened_richness_occurrence"] >= int(textedit_presencia_total_reptilia_min)) \
                             & (feature["spp_reptilia_threatened_richness_occurrence"] <= int(textedit_presencia_total_reptilia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_reptilia_threatened_richness_occurrence")
-                        self.insertIntoColumnList("spp_reptilia_threatened_richness_occurrence_names")
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_presencia_total_reptilia.isChecked() & self.checkbox_presencia_total_reptilia_amenazadas_lcvs.isChecked():
+                    if (feature["spp_reptilia_lcvs_richness_occurrence"] >= int(textedit_presencia_total_reptilia_min)) \
+                            & (feature["spp_reptilia_lcvs_richness_occurrence"] <= int(textedit_presencia_total_reptilia_max)):
+                        self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
                 elif self.checkbox_presencia_total_reptilia.isChecked():
                     if (feature["spp_reptilia_richness_occurrence"] >= int(textedit_presencia_total_reptilia_min)) \
                             & (feature["spp_reptilia_richness_occurrence"] <= int(textedit_presencia_total_reptilia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_reptilia_richness_occurrence")
-                        self.insertIntoColumnList("spp_reptilia_richness_occurrence_names")
                         hayRegistros = True
 
                 ###############################################################################
@@ -525,16 +602,18 @@ class SpecifyDialog(QtWidgets.QDialog):
                     if (feature["spp_amphibia_threatened_richness_occurrence"] >= int(textedit_presencia_total_amphibia_min)) \
                             & (feature["spp_amphibia_threatened_richness_occurrence"] <= int(textedit_presencia_total_amphibia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_amphibia_threatened_richness_occurrence")
-                        self.insertIntoColumnList("spp_amphibia_threatened_richness_occurrence_names")
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_presencia_total_amphibia.isChecked() & self.checkbox_presencia_total_amphibia_amenazadas_lcvs.isChecked():
+                    if (feature["spp_amphibia_lcvs_richness_occurrence"] >= int(textedit_presencia_total_amphibia_min)) \
+                            & (feature["spp_amphibia_lcvs_richness_occurrence"] <= int(textedit_presencia_total_amphibia_max)):
+                        self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
                 elif self.checkbox_presencia_total_amphibia.isChecked():
                     if (feature["spp_amphibia_richness_occurrence"] >= int(textedit_presencia_total_amphibia_min)) \
                             & (feature["spp_amphibia_richness_occurrence"] <= int(textedit_presencia_total_amphibia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_amphibia_richness_occurrence")
-                        self.insertIntoColumnList("spp_amphibia_richness_occurrence_names")
                         hayRegistros = True
 
                 ###############################################################################
@@ -545,16 +624,18 @@ class SpecifyDialog(QtWidgets.QDialog):
                     if (feature["spp_trees_threatened_richness_occurrence"] >= int(textedit_presencia_total_trees_min)) \
                             & (feature["spp_trees_threatened_richness_occurrence"] <= int(textedit_presencia_total_trees_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_trees_threatened_richness_occurrence")
-                        self.insertIntoColumnList("spp_trees_threatened_richness_occurrence_names")
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_presencia_total_trees.isChecked() & self.checkbox_presencia_total_trees_amenazadas_lcvs.isChecked():
+                    if (feature["spp_trees_lcvs_richness_occurrence"] >= int(textedit_presencia_total_trees_min)) \
+                            & (feature["spp_trees_lcvs_richness_occurrence"] <= int(textedit_presencia_total_trees_max)):
+                        self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
                 elif self.checkbox_presencia_total_trees.isChecked():
                     if (feature["spp_trees_richness_occurrence"] >= int(textedit_presencia_total_trees_min)) \
                             & (feature["spp_trees_richness_occurrence"] <= int(textedit_presencia_total_trees_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_trees_richness_occurrence")
-                        self.insertIntoColumnList("spp_trees_richness_occurrence_names")
                         hayRegistros = True
 
                 ###############################################################################
@@ -564,6 +645,12 @@ class SpecifyDialog(QtWidgets.QDialog):
                 if self.checkbox_distribucion_total_especies.isChecked() & self.checkbox_distribucion_total_especies_amenazadas.isChecked():
                     if (feature["spp_all_threatened_richness_distribution"] >= int(textedit_distribucion_total_especies_min)) \
                             & (feature["spp_all_threatened_richness_distribution"] <= int(textedit_distribucion_total_especies_max)):
+                        self.layer.select(feature.id())
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_distribucion_total_especies.isChecked() & self.checkbox_distribucion_total_especies_amenazadas_lcvs.isChecked():
+                    if (feature["spp_all_lcvs_richness_distribution"] >= int(textedit_distribucion_total_especies_min)) \
+                            & (feature["spp_all_lcvs_richness_distribution"] <= int(textedit_distribucion_total_especies_max)):
                         self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
@@ -581,16 +668,18 @@ class SpecifyDialog(QtWidgets.QDialog):
                     if (feature["spp_mammalia_threatened_richness_distribution"] >= int(textedit_distribucion_total_mammalia_min)) \
                             & (feature["spp_mammalia_threatened_richness_distribution"] <= int(textedit_distribucion_total_mammalia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_mammalia_threatened_richness_distribution")
-                        self.insertIntoColumnList("spp_mammalia_threatened_richness_distribution_names")
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_distribucion_total_mammalia.isChecked() & self.checkbox_distribucion_total_mammalia_amenazadas_lcvs.isChecked():
+                    if (feature["spp_mammalia_lcvs_richness_distribution"] >= int(textedit_distribucion_total_mammalia_min)) \
+                            & (feature["spp_mammalia_lcvs_richness_distribution"] <= int(textedit_distribucion_total_mammalia_max)):
+                        self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
                 elif self.checkbox_distribucion_total_mammalia.isChecked():
                     if (feature["spp_mammalia_richness_distribution"] >= int(textedit_distribucion_total_mammalia_min)) \
                             & (feature["spp_mammalia_richness_distribution"] <= int(textedit_distribucion_total_mammalia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_mammalia_richness_distribution")
-                        self.insertIntoColumnList("spp_mammalia_richness_distribution_names")
                         hayRegistros = True
 
                 ###############################################################################
@@ -601,16 +690,18 @@ class SpecifyDialog(QtWidgets.QDialog):
                     if (feature["spp_aves_threatened_richness_distribution"] >= int(textedit_distribucion_total_aves_min)) \
                             & (feature["spp_aves_threatened_richness_distribution"] <= int(textedit_distribucion_total_aves_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_aves_threatened_richness_distribution")
-                        self.insertIntoColumnList("spp_aves_threatened_richness_distribution_names")
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_distribucion_total_aves.isChecked() & self.checkbox_distribucion_total_aves_amenazadas_lcvs.isChecked():
+                    if (feature["spp_aves_lcvs_richness_distribution"] >= int(textedit_distribucion_total_aves_min)) \
+                            & (feature["spp_aves_lcvs_richness_distribution"] <= int(textedit_distribucion_total_aves_max)):
+                        self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
                 elif self.checkbox_distribucion_total_aves.isChecked():
                     if (feature["spp_aves_richness_distribution"] >= int(textedit_distribucion_total_aves_min)) \
                             & (feature["spp_aves_richness_distribution"] <= int(textedit_distribucion_total_aves_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_aves_richness_distribution")
-                        self.insertIntoColumnList("spp_aves_richness_distribution_names")
                         hayRegistros = True
 
                 ###############################################################################
@@ -621,16 +712,18 @@ class SpecifyDialog(QtWidgets.QDialog):
                     if (feature["spp_reptilia_threatened_richness_distribution"] >= int(textedit_distribucion_total_reptilia_min)) \
                             & (feature["spp_reptilia_threatened_richness_distribution"] <= int(textedit_distribucion_total_reptilia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_reptilia_threatened_richness_distribution")
-                        self.insertIntoColumnList("spp_reptilia_threatened_richness_distribution_names")
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_distribucion_total_reptilia.isChecked() & self.checkbox_distribucion_total_reptilia_amenazadas_lcvs.isChecked():
+                    if (feature["spp_reptilia_lcvs_richness_distribution"] >= int(textedit_distribucion_total_reptilia_min)) \
+                            & (feature["spp_reptilia_lcvs_richness_distribution"] <= int(textedit_distribucion_total_reptilia_max)):
+                        self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
                 elif self.checkbox_distribucion_total_reptilia.isChecked():
                     if (feature["spp_reptilia_richness_distribution"] >= int(textedit_distribucion_total_reptilia_min)) \
                             & (feature["spp_reptilia_richness_distribution"] <= int(textedit_distribucion_total_reptilia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_reptilia_richness_distribution")
-                        self.insertIntoColumnList("spp_reptilia_richness_distribution_names")
                         hayRegistros = True
 
                 ###############################################################################
@@ -641,16 +734,18 @@ class SpecifyDialog(QtWidgets.QDialog):
                     if (feature["spp_amphibia_threatened_richness_distribution"] >= int(textedit_distribucion_total_amphibia_min)) \
                             & (feature["spp_amphibia_threatened_richness_distribution"] <= int(textedit_distribucion_total_amphibia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_amphibia_threatened_richness_distribution")
-                        self.insertIntoColumnList("spp_amphibia_threatened_richness_distribution_names")
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_distribucion_total_amphibia.isChecked() & self.checkbox_distribucion_total_amphibia_amenazadas_lcvs.isChecked():
+                    if (feature["spp_amphibia_lcvs_richness_distribution"] >= int(textedit_distribucion_total_amphibia_min)) \
+                            & (feature["spp_amphibia_lcvs_richness_distribution"] <= int(textedit_distribucion_total_amphibia_max)):
+                        self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
                 elif self.checkbox_distribucion_total_amphibia.isChecked():
                     if (feature["spp_amphibia_richness_distribution"] >= int(textedit_distribucion_total_amphibia_min)) \
                             & (feature["spp_amphibia_richness_distribution"] <= int(textedit_distribucion_total_amphibia_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_amphibia_richness_distribution")
-                        self.insertIntoColumnList("spp_amphibia_richness_distribution_names")
                         hayRegistros = True
 
                 ###############################################################################
@@ -661,16 +756,18 @@ class SpecifyDialog(QtWidgets.QDialog):
                     if (feature["spp_trees_threatened_richness_distribution"] >= int(textedit_distribucion_total_trees_min)) \
                             & (feature["spp_trees_threatened_richness_distribution"] <= int(textedit_distribucion_total_trees_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_trees_threatened_richness_distribution")
-                        self.insertIntoColumnList("spp_trees_threatened_richness_distribution_names")
+                        hayRegistros = True
+                # por LCVS
+                if self.checkbox_distribucion_total_trees.isChecked() & self.checkbox_distribucion_total_trees_amenazadas_lcvs.isChecked():
+                    if (feature["spp_trees_lcvs_richness_distribution"] >= int(textedit_distribucion_total_trees_min)) \
+                            & (feature["spp_trees_lcvs_richness_distribution"] <= int(textedit_distribucion_total_trees_max)):
+                        self.layer.select(feature.id())
                         hayRegistros = True
                 # o solamente por presencia
                 elif self.checkbox_distribucion_total_trees.isChecked():
                     if (feature["spp_trees_richness_distribution"] >= int(textedit_distribucion_total_trees_min)) \
                             & (feature["spp_trees_richness_distribution"] <= int(textedit_distribucion_total_trees_max)):
                         self.layer.select(feature.id())
-                        self.insertIntoColumnList("spp_trees_richness_distribution")
-                        self.insertIntoColumnList("spp_trees_richness_distribution_names")
                         hayRegistros = True
 
             if(not hayRegistros):
