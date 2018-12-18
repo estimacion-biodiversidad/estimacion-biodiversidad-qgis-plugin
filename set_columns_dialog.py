@@ -221,7 +221,7 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.checkbox_distribucion_total_amphibia = QCheckBox("Riqueza total de AMPHIBIA por áreas de distribución", self)
         self.checkbox_distribucion_total_amphibia.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
-        self.checkbox_distribucion_total_amphibia_amenazadas = QCheckBox("Riqueza total de AMPHIBIA - Amenazadas UICN", self)
+        self.checkbox_distribucion_total_amphibia_amenazadas = QCheckBox("Riqueza total de AMPHIBIA por áreas de distribución - Amenazadas UICN", self)
         self.checkbox_distribucion_total_amphibia_amenazadas.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
         Y += INCREMENT_Y
         self.checkbox_distribucion_total_amphibia_amenazadas_lcvs = QCheckBox("Riqueza total de AMPHIBIA por áreas de distribución - Amenazadas LCVS", self)
