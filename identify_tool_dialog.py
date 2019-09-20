@@ -25,7 +25,7 @@
 import os
 
 from PyQt5 import uic
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtWidgets import QPushButton, QLabel, QHBoxLayout, QDialog, QWidget, QVBoxLayout, QScrollArea,\
     QTableWidget, QTableWidgetItem, QFileDialog, QMessageBox, QFrame
@@ -56,95 +56,135 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
         self.filename = None
 
         self.totalColumns = {
-            "spp_all_richness_occurrence": "Riqueza total de especies\npor registros de presencia",
-            "spp_all_richness_occurrence_names": "Nombres (total especies)\npor registros de presencia",
-            "spp_all_richness_distribution": "Riqueza (total especies)\npor areas de distribucion",
-            "spp_all_richness_distribution_names": "Nombres (total especies)\npor areas de distribucion",
+            "all_occurrence": "Riqueza total\npor registros de presencia",
+            "all_occurrence_names": "Todas las especies\npor registros de presencia",
+            "all_distribution": "Riqueza total\npor áreas de distribución",
+            "all_distribution_names": "Todas las especies\npor áreas de distribución",
 
-            "spp_mammalia_richness_occurrence": "Riqueza de Mammalia\npor registros de presencia",
-            "spp_mammalia_richness_occurrence_names": "Nombres (Mammalia)\npor registros de presencia",
-            "spp_mammalia_richness_distribution": "Riqueza de Mammalia\npor areas de distribucion",
-            "spp_mammalia_richness_distribution_names": "Nombres (Mammalia)\npor areas de distribucion",
+            "mammalia_occurrence": "Riqueza de Mammalia\npor registros de presencia",
+            "mammalia_occurrence_names": "Especies de Mammalia\npor registros de presencia",
+            "mammalia_distribution": "Riqueza de Mammalia\npor áreas de distribución",
+            "mammalia_distribution_names": "Especies de Mammalia\npor áreas de distribución",
 
-            "spp_aves_richness_occurrence": "Riqueza de Aves\npor registros de presencia",
-            "spp_aves_richness_occurrence_names": "Nombres (Aves)\npor registros de presencia",
-            "spp_aves_richness_distribution": "Riqueza de Aves\npor areas de distribucion",
-            "spp_aves_richness_distribution_names": "Nombres (Aves)\npor areas de distribucion",
+            "reptilia_occurrence": "Riqueza de Reptilia\npor registros de presencia",
+            "reptilia_occurrence_names": "Especies de Reptilia\nnpor registros de presencia",
+            "reptilia_distribution": "Riqueza de Reptilia\npor áreas de distribución",
+            "reptilia_distribution_names": "Especies de Reptilia\npor áreas de distribución",
 
-            "spp_reptilia_richness_occurrence": "Riqueza de Reptilia\npor registros de presencia",
-            "spp_reptilia_richness_occurrence_names": "Nombres (Reptilia)\npor registros de presencia",
-            "spp_reptilia_richness_distribution": "Riqueza de Reptilia\npor areas de distribucion",
-            "spp_reptilia_richness_distribution_names": "Nombres (Reptilia)\npor areas de distribucion",
+            "amphibia_occurrence": "Riqueza de Amphibia\npor registros de presencia",
+            "amphibia_occurrence_names": "Especies de Amphibia\npor registros de presencia",
+            "amphibia_distribution": "Riqueza de Amphibia\npor áreas de distribución",
+            "amphibia_distribution_names": "Especies de Amphibia)\npor áreas de distribución",
 
-            "spp_amphibia_richness_occurrence": "Riqueza de Amphibia\npor registros de presencia",
-            "spp_amphibia_richness_occurrence_names": "Nombres (Amphibia)\npor registros de presencia",
-            "spp_amphibia_richness_distribution": "Riqueza de Amphibia\npor areas de distribucion",
-            "spp_amphibia_richness_distribution_names": "Nombres (Amphibia)\npor areas de distribucion",
+            "aves_occurrence": "Riqueza de Aves\npor registros de presencia",
+            "aves_occurrence_names": "Especies de Aves\npor registros de presencia",
+            "aves_distribution": "Riqueza de Aves\npor áreas de distribución",
+            "aves_distribution_names": "Especies de Aves\npor áreas de distribución",
 
-            "spp_trees_richness_occurrence": "Riqueza de Plantae\npor registros de presencia",
-            "spp_trees_richness_occurrence_names": "Nombres (Plantae)\npor registros de presencia",
-            "spp_trees_richness_distribution": "Riqueza de Plantae\npor areas de distribucion",
-            "spp_trees_richness_distribution_names": "Nombres (Plantae)\npor areas de distribucion",
+            "plantae_occurrence": "Riqueza de Plantae\npor registros de presencia",
+            "plantae_occurrence_names": "Especies de Plantae\npor registros de presencia",
+            "plantae_distribution": "Riqueza de Plantae\npor áreas de distribución",
+            "plantae_distribution_names": "Especies de Plantae\npor áreas de distribución",
 
-            "spp_all_threatened_richness_occurrence": "Riqueza total de especies amenazadas UICN\npor registros de presencia",
-            "spp_all_threatened_richness_occurrence_names": "Nombres (total especies) amenazadas UICN\npor registros de presencia",
-            "spp_all_threatened_richness_distribution": "Riqueza (total especies) amenazadas UICN\npor areas de distribucion",
-            "spp_all_threatened_richness_distribution_names": "Nombres (total especies) amenazadas UICN\npor areas de distribucion",
+            "all_iucn_threatened_occurrence": "Riqueza total de especies\namenazadas (IUCN)\npor registros de presencia",
+            "all_iucn_threatened_occurrence_names": "Todas las especies\namenazadas (IUCN)\npor registros de presencia",
+            "all_iucn_threatened_distribution": "Riqueza total de especies\namenazadas (IUCN)\npor áreas de distribución",
+            "all_iucn_threatened_distribution_names": "Todas las especies\namenazadas (IUCN)\npor áreas de distribución",
 
-            "spp_mammalia_threatened_richness_occurrence": "Riqueza de Mammalia menazada UICN\npor registros de presencia",
-            "spp_mammalia_threatened_richness_occurrence_names": "Nombres (Mammalia) amenazada UICN\npor registros de presencia",
-            "spp_mammalia_threatened_richness_distribution": "Riqueza de Mammalia amenazada UICN\npor areas de distribucion",
-            "spp_mammalia_threatened_richness_distribution_names": "Nombres (Mammalia) UICN\namenazada por areas de distribucion",
+            "mammalia_iucn_threatened_occurrence": "Riqueza de Mammalia\namenazadas (IUCN)\npor registros de presencia",
+            "mammalia_iucn_threatened_occurrence_names": "Especies de Mammalia\namenazadas (IUCN)\npor registros de presencia",
+            "mammalia_iucn_threatened_distribution": "Riqueza de Mammalia\namenazadas (IUCN)\npor áreas de distribución",
+            "mammalia_iucn_threatened_distribution_names": "Especies de Mammalia\namenazadas (IUCN)\npor áreas de distribución",
 
-            "spp_aves_threatened_richness_occurrence": "Riqueza de Aves amenazada UICN\npor registros de presencia",
-            "spp_aves_threatened_richness_occurrence_names": "Nombres (Aves) amenazada UICN\npor registros de presencia",
-            "spp_aves_threatened_richness_distribution": "Riqueza de Aves amenazada UICN\npor areas de distribucion",
-            "spp_aves_threatened_richness_distribution_names": "Nombres (Aves) amenazada UICN\npor areas de distribucion",
+            "reptilia_iucn_threatened_occurrence": "Riqueza de Reptilia\namenazadas (IUCN)\npor registros de presencia",
+            "reptilia_iucn_threatened_occurrence_names": "Especies de Reptilia\namenazadas (IUCN)\npor registros de presencia",
+            "reptilia_iucn_threatened_distribution": "Riqueza de Reptilia\namenazadas (IUCN)\npor áreas de distribución",
+            "reptilia_iucn_threatened_distribution_names": "Especies de Reptilia\namenazadas (IUCN)\npor áreas de distribución",
 
-            "spp_reptilia_threatened_richness_occurrence": "Riqueza de Reptilia amenazada UICN\npor registros de presencia",
-            "spp_reptilia_threatened_richness_occurrence_names": "Nombres (Reptilia) amenazada UICN\npor registros de presencia",
-            "spp_reptilia_threatened_richness_distribution": "Riqueza de Reptilia amenazada UICN\npor areas de distribucion",
-            "spp_reptilia_threatened_richness_distribution_names": "Nombres (Reptilia) amenazada UICN\npor areas de distribucion",
+            "amphibia_iucn_threatened_occurrence": "Riqueza de Amphibia\namenazadas (IUCN)\npor registros de presencia",
+            "amphibia_iucn_threatened_occurrence_names": "Especies de Amphibia\namenazadas (IUCN)\npor registros de presencia",
+            "amphibia_iucn_threatened_distribution": "Riqueza de Amphibia\namenazadas (IUCN)\npor áreas de distribución",
+            "amphibia_iucn_threatened_distribution_names": "Especies de Amphibia\namenazadas (IUCN)\npor áreas de distribución",
 
-            "spp_amphibia_threatened_richness_occurrence": "Riqueza de Amphibia amenazada UICN\npor registros de presencia",
-            "spp_amphibia_threatened_richness_occurrence_names": "Nombres (Amphibia) amenazada UICN\npor registros de presencia",
-            "spp_amphibia_threatened_richness_distribution": "Riqueza de Amphibia amenazada UICN\npor areas de distribucion",
-            "spp_amphibia_threatened_richness_distribution_names": "Nombres (Amphibia) amenazada UICN\npor areas de distribucion",
+            "aves_iucn_threatened_occurrence": "Riqueza de Aves\namenazadas (IUCN)\npor registros de presencia",
+            "aves_iucn_threatened_occurrence_names": "Especies de Aves\namenazadas (IUCN)\npor registros de presencia",
+            "aves_iucn_threatened_distribution": "Riqueza de Aves\namenazadas (IUCN)\npor áreas de distribución",
+            "aves_iucn_threatened_distribution_names": "Especies de Aves\namenazadas (IUCN)\npor áreas de distribución",
 
-            "spp_trees_threatened_richness_occurrence": "Riqueza de Plantae amenazada UICN\npor registros de presencia",
-            "spp_trees_threatened_richness_occurrence_names": "Nombres (Plantae) amenazada UICN\npor registros de presencia",
-            "spp_trees_threatened_richness_distribution": "Riqueza de Plantae amenazada UICN\npor areas de distribucion",
-            "spp_trees_threatened_richness_distribution_names": "Nombres (Plantae) amenazada UICN\npor areas de distribucion",
+            "plantae_iucn_threatened_occurrence": "Riqueza de Plantae\namenazadas (IUCN)\npor registros de presencia",
+            "plantae_iucn_threatened_occurrence_names": "Especies de Plantae\namenazadas (IUCN)\npor registros de presencia",
+            "plantae_iucn_threatened_distribution": "Riqueza de Plantae\namenazadas (IUCN)\npor áreas de distribución",
+            "plantae_iucn_threatened_distribution_names": "Especies de Plantae\namenazadas (IUCN)\npor áreas de distribución",
 
-            "spp_all_lcvs_richness_occurrence": "Riqueza total de especies amenazadas LCVS\npor registros de presencia",
-            "spp_all_lcvs_richness_occurrence_names": "Nombres (total especies) amenazadas LCVS\npor registros de presencia",
-            "spp_all_lcvs_richness_distribution": "Riqueza (total especies) amenazadas LCVS\npor areas de distribucion",
-            "spp_all_lcvs_richness_distribution_names": "Nombres (total especies) amenazadas LCVS\npor areas de distribucion",
+            "all_lcvs_pe_occurrence": "Riqueza total de especies\nen peligro de extinción\npor registros de presencia",
+            "all_lcvs_pe_occurrence_names": "Todas las especies\nen peligro de extinción\npor registros de presencia",
+            "all_lcvs_pe_distribution": "Riqueza total de especies\nen peligro de extinción\npor áreas de distribución",
+            "all_lcvs_pe_distribution_names": "Todas las especies\nen peligro de extinción\npor áreas de distribución",
 
-            "spp_mammalia_lcvs_richness_occurrence": "Riqueza de Mammalia menazada LCVS\npor registros de presencia",
-            "spp_mammalia_lcvs_richness_occurrence_names": "Nombres (Mammalia) amenazada LCVS\npor registros de presencia",
-            "spp_mammalia_lcvs_richness_distribution": "Riqueza de Mammalia amenazada LCVS\npor areas de distribucion",
-            "spp_mammalia_lcvs_richness_distribution_names": "Nombres (Mammalia) LCVS\namenazada por areas de distribucion",
+            "mammalia_lcvs_pe_occurrence": "Riqueza de Mammalia\nen peligro de extinción\npor registros de presencia",
+            "mammalia_lcvs_pe_occurrence_names": "Especies de Mammalia\nen peligro de extinción\npor registros de presencia",
+            "mammalia_lcvs_pe_distribution": "Riqueza de Mammalia\nen peligro de extinción\npor áreas de distribución",
+            "mammalia_lcvs_pe_distribution_names": "Especies de Mammalia\nen peligro de extinción\npor áreas de distribución",
 
-            "spp_aves_lcvs_richness_occurrence": "Riqueza de Aves amenazada LCVS\npor registros de presencia",
-            "spp_aves_lcvs_richness_occurrence_names": "Nombres (Aves) amenazada LCVS\npor registros de presencia",
-            "spp_aves_lcvs_richness_distribution": "Riqueza de Aves amenazada LCVS\npor areas de distribucion",
-            "spp_aves_lcvs_richness_distribution_names": "Nombres (Aves) amenazada LCVS\npor areas de distribucion",
+            "reptilia_lcvs_pe_occurrence": "Riqueza de Reptilia\nen peligro de extinción\npor registros de presencia",
+            "reptilia_lcvs_pe_occurrence_names": "Especies de Reptilia\nen peligro de extinción\npor registros de presencia",
+            "reptilia_lcvs_pe_distribution": "Riqueza de Reptilia\en peligro de extinción\npor áreas de distribución",
+            "reptilia_lcvs_pe_distribution_names": "Especies de Reptilia\nen peligro de extinción\npor áreas de distribución",
 
-            "spp_reptilia_lcvs_richness_occurrence": "Riqueza de Reptilia amenazada LCVS\npor registros de presencia",
-            "spp_reptilia_lcvs_richness_occurrence_names": "Nombres (Reptilia) amenazada LCVS\npor registros de presencia",
-            "spp_reptilia_lcvs_richness_distribution": "Riqueza de Reptilia amenazada LCVS\npor areas de distribucion",
-            "spp_reptilia_lcvs_richness_distribution_names": "Nombres (Reptilia) amenazada LCVS\npor areas de distribucion",
+            "amphibia_lcvs_pe_occurrence": "Riqueza de Amphibia\nen peligro de extinción\npor registros de presencia",
+            "amphibia_lcvs_pe_occurrence_names": "Especies de Amphibia\nen peligro de extinción\npor registros de presencia",
+            "amphibia_lcvs_pe_distribution": "Riqueza de Amphibia\en peligro de extinción\npor áreas de distribución",
+            "amphibia_lcvs_pe_distribution_names": "Especies de Amphibia\nen peligro de extinción\npor áreas de distribución",
 
-            "spp_amphibia_lcvs_richness_occurrence": "Riqueza de Amphibia amenazada LCVS\npor registros de presencia",
-            "spp_amphibia_lcvs_richness_occurrence_names": "Nombres (Amphibia) amenazada LCVS\npor registros de presencia",
-            "spp_amphibia_lcvs_richness_distribution": "Riqueza de Amphibia amenazada LCVS\npor areas de distribucion",
-            "spp_amphibia_lcvs_richness_distribution_names": "Nombres (Amphibia) amenazada LCVS\npor areas de distribucion",
+            "aves_lcvs_pe_occurrence": "Riqueza de Aves\nen peligro de extinción\npor registros de presencia",
+            "aves_lcvs_pe_occurrence_names": "Especies de Aves\nen peligro de extinción\npor registros de presencia",
+            "aves_lcvs_pe_distribution": "Riqueza de Aves\nen peligro de extinción\npor áreas de distribución",
+            "aves_lcvs_pe_distribution_names": "Especies de Aves\nen peligro de extinción\npor áreas de distribución",
 
-            "spp_trees_lcvs_richness_occurrence": "Riqueza de Plantae amenazada UICN\npor registros de presencia",
-            "spp_trees_lcvs_richness_occurrence_names": "Nombres (Plantae) amenazada UICN\npor registros de presencia",
-            "spp_trees_lcvs_richness_distribution": "Riqueza de Plantae amenazada UICN\npor areas de distribucion",
-            "spp_trees_lcvs_richness_distribution_names": "Nombres (Plantae) amenazada UICN\npor areas de distribucion"
+            "plantae_lcvs_pe_occurrence": "Riqueza de Plantae\nen peligro de extinción\npor registros de presencia",
+            "plantae_lcvs_pe_occurrence_names": "Especies de Plantae\nen peligro de extinción\npor registros de presencia",
+            "plantae_lcvs_pe_distribution": "Riqueza de Plantae\nen peligro de extinción\npor áreas de distribución",
+            "plantae_lcvs_pe_distribution_names": "Especies de Plantae\nen peligro de extinción\npor áreas de distribución",
+
+            "all_lcvs_pr_occurrence": "Riqueza total de especies\ncon poblaciones reducidas\npor registros de presencia",
+            "all_lcvs_pr_occurrence_names": "Todas las especies\ncon poblaciones reducidas\npor registros de presencia",
+            "all_lcvs_pr_distribution": "Riqueza total de especies\ncon poblaciones reducidas\npor áreas de distribución",
+            "all_lcvs_pr_distribution_names": "Todas las especies\ncon poblaciones reducidas\npor áreas de distribución",
+
+            "mammalia_lcvs_pr_occurrence": "Riqueza de Mammalia\ncon poblaciones reducidas\npor registros de presencia",
+            "mammalia_lcvs_pr_occurrence_names": "Especies de Mammalia\ncon poblaciones reducidas\npor registros de presencia",
+            "mammalia_lcvs_pr_distribution": "Riqueza de Mammalia\ncon poblaciones reducidas\npor áreas de distribución",
+            "mammalia_lcvs_pr_distribution_names": "Especies de Mammalia\ncon poblaciones reducidas\npor áreas de distribución",
+
+            "reptilia_lcvs_pr_occurrence": "Riqueza de Reptilia\ncon poblaciones reducidas\npor registros de presencia",
+            "reptilia_lcvs_pr_occurrence_names": "Especies de Reptilia\ncon poblaciones reducidas\npor registros de presencia",
+            "reptilia_lcvs_pr_distribution": "Riqueza de Reptilia\con poblaciones reducidas\npor áreas de distribución",
+            "reptilia_lcvs_pr_distribution_names": "Especies de Reptilia\ncon poblaciones reducidas\npor áreas de distribución",
+
+            "amphibia_lcvs_pr_occurrence": "Riqueza de Amphibia\ncon poblaciones reducidas\npor registros de presencia",
+            "amphibia_lcvs_pr_occurrence_names": "Especies de Amphibia\ncon poblaciones reducidas\npor registros de presencia",
+            "amphibia_lcvs_pr_distribution": "Riqueza de Amphibia\con poblaciones reducidas\npor áreas de distribución",
+            "amphibia_lcvs_pr_distribution_names": "Especies de Amphibia\ncon poblaciones reducidas\npor áreas de distribución",
+
+            "aves_lcvs_pr_occurrence": "Riqueza de Aves\ncon poblaciones reducidas\npor registros de presencia",
+            "aves_lcvs_pr_occurrence_names": "Especies de Aves\ncon poblaciones reducidas\npor registros de presencia",
+            "aves_lcvs_pr_distribution": "Riqueza de Aves\ncon poblaciones reducidas\npor áreas de distribución",
+            "aves_lcvs_pr_distribution_names": "Especies de Aves\ncon poblaciones reducidas\npor áreas de distribución",
+
+            "plantae_lcvs_pr_occurrence": "Riqueza de Plantae\ncon poblaciones reducidas\npor registros de presencia",
+            "plantae_lcvs_pr_occurrence_names": "Especies de Plantae\ncon poblaciones reducidas\npor registros de presencia",
+            "plantae_lcvs_pr_distribution": "Riqueza de Plantae\ncon poblaciones reducidas\npor áreas de distribución",
+            "plantae_lcvs_pr_distribution_names": "Especies de Plantae\ncon poblaciones reducidas\npor áreas de distribución",
+
+            "all_lcvs_ve_occurrence": "Riqueza total de especies\nvedadas\npor registros de presencia",
+            "all_lcvs_ve_occurrence_names": "Todas las especies\nvedadas\npor registros de presencia",
+            "all_lcvs_ve_distribution": "Riqueza total de especies\nvedadas\npor áreas de distribución",
+            "all_lcvs_ve_distribution_names": "Todas las especies\nvedadas\npor áreas de distribución",
+
+            "plantae_lcvs_ve_occurrence": "Riqueza de Plantae\nvedadas\npor registros de presencia",
+            "plantae_lcvs_ve_occurrence_names": "Especies de Plantae\nvedadas\npor registros de presencia",
+            "plantae_lcvs_ve_distribution": "Riqueza de Plantae\nvedadas\npor áreas de distribución",
+            "plantae_lcvs_ve_distribution_names": "Especies de Plantae\nvedadas\npor áreas de distribución"
         }
 
     def showDialog(self, layer, columnList, progress, progressInfo, fonafifoUrl):
@@ -163,7 +203,7 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
         pic.setPixmap(pixmap)
 
         self.labelHeader = QLabel(self)
-        self.labelHeader.setText("Despliegue de estadísticas")
+        self.labelHeader.setText("Resultados")
         self.labelHeader.setStyleSheet('color: #076F00')
         self.labelHeader.move(20, 20)
         newfont = QFont("Times", 20, QFont.Bold)
@@ -205,16 +245,23 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.show()
 
-    def close(self):
-        self.columnList.clear()
-        self.done(1)
+    #def close(self):
+    #    self.columnList.clear()
+    #    self.done(1)
 
     def downloadCSV(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self,"QFileDialog.getSaveFileName()","","CSV Files (*.csv)", options=options)
+        fileName, _ = QFileDialog.getSaveFileName(self,"Guardar Resultados","","CSV Files (*.csv)", options=options)
         if fileName:
             file = open(fileName, 'w')
+
+            file.write('Area' + '\t')
+            for column in self.columnList:
+                tempStr = (str(self.totalColumns[column])).replace('\n', '');
+                file.write(tempStr + '\t')
+
+            file.write('\n')
 
             found_features = self.layer.selectedFeatures()
 
@@ -231,33 +278,54 @@ class IdentifyToolDialog(QtWidgets.QDialog, FORM_CLASS):
     def buildColumns(self):
         columnCount = 1
         for column in self.columnList:
-            self.tableWidget.setHorizontalHeaderItem(columnCount, QTableWidgetItem(self.totalColumns[column]))
+            headerItem = QTableWidgetItem(self.totalColumns[column])
+            self.tableWidget.setHorizontalHeaderItem(columnCount, headerItem)
+            if (columnCount % 2) == 0:
+                self.tableWidget.setColumnWidth(columnCount, 300)
+            else:
+                self.tableWidget.setColumnWidth(columnCount, 150)
             columnCount=columnCount+1
 
-        self.tableWidget.setColumnWidth(0, 100)
-        self.tableWidget.setColumnWidth(len(self.columnList)+1, 150)
-        self.tableWidget.setColumnWidth(len(self.columnList)+2, 350)
-        self.tableWidget.setColumnWidth(len(self.columnList)+3, 150)
-        self.tableWidget.setColumnWidth(len(self.columnList)+4, 350)
+        #self.tableWidget.setColumnWidth(0, 100)
+        #self.tableWidget.setColumnWidth(len(self.columnList)+1, 150)
+        #self.tableWidget.setColumnWidth(len(self.columnList)+2, 350)
+        #self.tableWidget.setColumnWidth(len(self.columnList)+3, 150)
+        #self.tableWidget.setColumnWidth(len(self.columnList)+4, 350)
 
-        self.tableWidget.setHorizontalHeaderItem(0, QTableWidgetItem('Area'))
+        self.tableWidget.setHorizontalHeaderItem(0, QTableWidgetItem('Área'))
         self.tableWidget.setSortingEnabled(True)
 
     def fillColumns(self):
 
+        # msgBox = QMessageBox()
+        # msgBox.setText(str(self.columnList));
+        # # msgBox.setText(str(found_feature[column]));
+        # msgBox.exec();
 
 
         found_features = self.layer.selectedFeatures()
 
-        cont = 0;
+        rowCount = 0;
         columnCount = 1
         for found_feature in found_features:
-            self.tableWidget.setItem(cont, 0, QTableWidgetItem(str(found_feature["name"])))
+            nameItem = QTableWidgetItem(str(found_feature["name"]))
+            if (rowCount % 2) != 0:
+                nameItem.setBackground(QtGui.QColor(240, 240, 240))
+            self.tableWidget.setItem(rowCount, 0, nameItem)
 
             for column in self.columnList:
-                self.tableWidget.setItem(cont, columnCount,
-                                         QTableWidgetItem(str(found_feature[column])))
+                if(str(found_feature[column])=='NULL'):
+                    nullItem = QTableWidgetItem("--")
+                    if (rowCount % 2) != 0:
+                        nullItem.setBackground(QtGui.QColor(240, 240, 240))
+                    self.tableWidget.setItem(rowCount, columnCount, nullItem)
+                else:
+                    item = QTableWidgetItem();
+                    if (rowCount % 2) != 0:
+                        item.setBackground(QtGui.QColor(240, 240, 240))
+                    item.setData(Qt.DisplayRole, found_feature[column]);
+                    self.tableWidget.setItem(rowCount, columnCount, item);
                 columnCount = columnCount + 1
 
-            cont = cont + 1
+            rowCount = rowCount + 1
             columnCount = 1

@@ -28,7 +28,7 @@ from PyQt5 import uic
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtWidgets import QPushButton, QLabel, QHBoxLayout, QDialog, QWidget, QVBoxLayout, QScrollArea,\
-    QTableWidget, QTableWidgetItem, QFileDialog, QMessageBox, QCheckBox, QLineEdit, QProgressBar, QFrame
+    QTableWidget, QTableWidgetItem, QFileDialog, QMessageBox, QCheckBox, QLineEdit, QProgressBar, QFrame, QListWidget
 
 from PyQt5.QtCore import QRect, Qt, QFile, QTimer
 
@@ -71,8 +71,10 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.progressInfo.setVisible(False)
 
     def showDialog(self, layer, columnList, fonafifoUrl):
+
         self.layer=layer
         self.columnList=columnList
+        self.columnList.clear()
         self.fonafifoUrl = fonafifoUrl
 
         MAX_FOOTER = 600
@@ -85,7 +87,7 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
         pic.setPixmap(pixmap)
 
         self.labelHeader = QLabel(self)
-        self.labelHeader.setText("Despliegue de estadísticas")
+        self.labelHeader.setText("Selección de Criterios")
         self.labelHeader.setStyleSheet('color: #076F00')
         self.labelHeader.move(10, 20)
         newfont = QFont("Times", 20, QFont.Bold)
@@ -108,12 +110,77 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.buttonCerrar.resize(200, 30)
         self.buttonCerrar.clicked.connect(self.close)
 
-        X = 10
-        Y = 70
+        X = 1500
+        Y = 200
 
         HEIGHT=30
         WIDTH_LABEL=400
         INCREMENT_Y=20
+
+        self.str_TOTAL = 'Total';
+        self.str_AMPHIBIA = 'Amphibia';
+        self.str_AVES = 'Aves';
+        self.str_MAMMALIA = 'Mammalia';
+        self.str_PLANTAE = 'Plantae';
+        self.str_REPTILIA = 'Reptilia';
+        self.str_REGISTROS_DE_PRESENCIA = 'Registros de presencia';
+        self.str_AREAS_DE_DISTRIBUCION = 'Áreas de distribución';
+        self.str_AMENAZADAS_UICN = 'Amenazadas IUCN';
+        self.str_EN_PELIGRO_DE_EXTINCION = 'En peligro de extinción';
+        self.str_CON_POBLACION_REDUCIDA = 'Con población reducida';
+        self.str_VEDADA = 'Vedadas';
+        self.str_CONT = ' --> ';
+
+        self.list_class_pre = QListWidget(self)
+        self.list_class_pre.addItem(self.str_TOTAL)
+        self.list_class_pre.addItem(self.str_AMPHIBIA)
+        self.list_class_pre.addItem(self.str_AVES)
+        self.list_class_pre.addItem(self.str_MAMMALIA)
+        self.list_class_pre.addItem(self.str_PLANTAE)
+        self.list_class_pre.addItem(self.str_REPTILIA)
+        self.list_class_pre.setCurrentRow(0)
+        self.list_class_pre.setGeometry(10, 120, 150, 120)
+
+        self.list_tipo_pre = QListWidget(self)
+        self.list_tipo_pre.addItem(self.str_REGISTROS_DE_PRESENCIA)
+        self.list_tipo_pre.addItem(self.str_AREAS_DE_DISTRIBUCION)
+        self.list_tipo_pre.setCurrentRow(0)
+        self.list_tipo_pre.setGeometry(10, 250, 150, 90)
+
+        self.list_amenazas_pre = QListWidget(self)
+        self.list_amenazas_pre.addItem("--")
+        self.list_amenazas_pre.addItem(self.str_AMENAZADAS_UICN)
+        self.list_amenazas_pre.addItem(self.str_EN_PELIGRO_DE_EXTINCION)
+        self.list_amenazas_pre.addItem(self.str_CON_POBLACION_REDUCIDA)
+        self.list_amenazas_pre.addItem(self.str_VEDADA)
+        self.list_amenazas_pre.setCurrentRow(0)
+        self.list_amenazas_pre.setGeometry(10, 350, 150, 90)
+
+        self.botton_list_include = QPushButton(">>", self)
+        self.botton_list_include.setGeometry(200, 120, 50, 50)
+        self.botton_list_include.clicked.connect(self.chooseClassInclude)
+
+        self.botton_list_exclude = QPushButton("<<", self)
+        self.botton_list_exclude.setGeometry(200, 160, 50, 50)
+        self.botton_list_exclude.clicked.connect(self.chooseClassExclude)
+
+        self.list_class_post = QListWidget(self)
+        self.list_class_post.setGeometry(300, 120, WIDTH_LABEL, 350)
+
+        self.seleccionClass = "";
+        self.seleccionTipo = "";
+        self.seleccionAmenaza = "";
+
+
+
+
+
+
+
+
+
+
+
 
 
         self.checkbox_presencia_total_especies = QCheckBox("Riqueza total de especies por registros de presencia", self)
@@ -176,7 +243,7 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.checkbox_presencia_total_trees_amenazadas_lcvs.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
 
         Y = 70
-        X = 450
+        X = 1450
 
         self.checkbox_distribucion_total_especies = QCheckBox("Riqueza total de especies por áreas de distribución", self)
         self.checkbox_distribucion_total_especies.setGeometry(X, Y, WIDTH_LABEL, HEIGHT)
@@ -254,10 +321,166 @@ class SetColumnsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.looptimer.start(5000)
 
 
+
+
+
+    def rellenarText(self, strClass):
+        if (self.seleccionClass == strClass):
+            if (self.seleccionTipo == self.str_REGISTROS_DE_PRESENCIA):
+                const_REG_PRESENCIA = strClass + self.str_CONT + self.str_REGISTROS_DE_PRESENCIA
+                if (self.seleccionAmenaza == '--'):
+                    self.list_class_post.addItem(const_REG_PRESENCIA)
+                if (self.seleccionAmenaza == self.str_AMENAZADAS_UICN):
+                    self.list_class_post.addItem(const_REG_PRESENCIA + self.str_CONT + self.str_AMENAZADAS_UICN);
+                if (self.seleccionAmenaza == self.str_EN_PELIGRO_DE_EXTINCION):
+                    self.list_class_post.addItem(const_REG_PRESENCIA + self.str_CONT + self.str_EN_PELIGRO_DE_EXTINCION);
+                if (self.seleccionAmenaza == self.str_CON_POBLACION_REDUCIDA):
+                    self.list_class_post.addItem(const_REG_PRESENCIA + self.str_CONT + self.str_CON_POBLACION_REDUCIDA);
+                if (self.seleccionAmenaza == self.str_VEDADA):
+                    if((self.seleccionClass == self.str_PLANTAE) | (self.seleccionClass == self.str_TOTAL)):
+                        self.list_class_post.addItem(const_REG_PRESENCIA + self.str_CONT + self.str_VEDADA);
+                    else:
+                        QMessageBox.about(self, 'Alerta!', 'La categoria "VEDADA" es exclusiva para Plantae');
+
+                self.agregarColumnas(strClass, self.seleccionAmenaza, "occurrence");
+
+            if (self.seleccionTipo == self.str_AREAS_DE_DISTRIBUCION):
+                const_REG_DISTRIBUCION = strClass + self.str_CONT + self.str_AREAS_DE_DISTRIBUCION
+                if (self.seleccionAmenaza == '--'):
+                    self.list_class_post.addItem(const_REG_DISTRIBUCION)
+                if (self.seleccionAmenaza == self.str_AMENAZADAS_UICN):
+                    self.list_class_post.addItem(const_REG_DISTRIBUCION + self.str_CONT + self.str_AMENAZADAS_UICN);
+                if (self.seleccionAmenaza == self.str_EN_PELIGRO_DE_EXTINCION):
+                    self.list_class_post.addItem(const_REG_DISTRIBUCION + self.str_CONT + self.str_EN_PELIGRO_DE_EXTINCION);
+                if (self.seleccionAmenaza == self.str_CON_POBLACION_REDUCIDA):
+                    self.list_class_post.addItem(const_REG_DISTRIBUCION + self.str_CONT + self.str_CON_POBLACION_REDUCIDA);
+                if (self.seleccionAmenaza == self.str_VEDADA):
+                    if((self.seleccionClass == self.str_PLANTAE) | (self.seleccionClass == self.str_TOTAL)):
+                        self.list_class_post.addItem(const_REG_DISTRIBUCION + self.str_CONT + self.str_VEDADA);
+                    else:
+                        QMessageBox.about(self, 'Alerta!', 'La categoria "VEDADA" es exclusiva para Plantae');
+
+                self.agregarColumnas(strClass, self.seleccionAmenaza, "distribution");
+
+    def agregarColumnas(self, strClass, strStatus, strType):
+        if (strClass == self.str_TOTAL):
+            if (strStatus == '--'):
+                self.columnList.append("all_" + strType);
+                self.columnList.append("all_" + strType + "_names");
+            if (strStatus == self.str_AMENAZADAS_UICN):
+                self.columnList.append("all_iucn_threatened_" + strType);
+                self.columnList.append("all_iucn_threatened_" + strType + "_names");
+            if (strStatus == self.str_EN_PELIGRO_DE_EXTINCION):
+                self.columnList.append("all_lcvs_pe_" + strType);
+                self.columnList.append("all_lcvs_pe_" + strType + "_names");
+            if (strStatus == self.str_CON_POBLACION_REDUCIDA):
+                self.columnList.append("all_lcvs_pr_" + strType);
+                self.columnList.append("all_lcvs_pr_" + strType + "_names");
+            if (strStatus == self.str_VEDADA):
+                self.columnList.append("all_lcvs_ve_" + strType);
+                self.columnList.append("all_lcvs_ve_" + strType + "_names");
+        if (strClass == self.str_AMPHIBIA):
+            if (strStatus == '--'):
+                self.columnList.append("amphibia_" + strType);
+                self.columnList.append("amphibia_" + strType + "_names");
+            if (strStatus == self.str_AMENAZADAS_UICN):
+                self.columnList.append("amphibia_iucn_threatened_" + strType);
+                self.columnList.append("amphibia_iucn_threatened_" + strType + "_names");
+            if (strStatus == self.str_EN_PELIGRO_DE_EXTINCION):
+                self.columnList.append("amphibia_lcvs_pe_" + strType);
+                self.columnList.append("amphibia_lcvs_pe_" + strType + "_names");
+            if (strStatus == self.str_CON_POBLACION_REDUCIDA):
+                self.columnList.append("amphibia_lcvs_pr_" + strType);
+                self.columnList.append("amphibia_lcvs_pr_" + strType + "_names");
+        if (strClass == self.str_AVES):
+            if (strStatus == '--'):
+                self.columnList.append("aves_" + strType);
+                self.columnList.append("aves_occurrence_names");
+            if (strStatus == self.str_AMENAZADAS_UICN):
+                self.columnList.append("aves_iucn_threatened_" + strType);
+                self.columnList.append("aves_iucn_threatened_" + strType + "_names");
+            if (strStatus == self.str_EN_PELIGRO_DE_EXTINCION):
+                self.columnList.append("aves_lcvs_pe_" + strType);
+                self.columnList.append("aves_lcvs_pe_" + strType + "_names");
+            if (strStatus == self.str_CON_POBLACION_REDUCIDA):
+                self.columnList.append("aves_lcvs_pr_" + strType);
+                self.columnList.append("aves_lcvs_pr_" + strType + "_names");
+        if (strClass == self.str_MAMMALIA):
+            if (strStatus == '--'):
+                self.columnList.append("mammalia_" + strType);
+                self.columnList.append("mammalia_" + strType + "_names");
+            if (strStatus == self.str_AMENAZADAS_UICN):
+                self.columnList.append("mammalia_iucn_threatened_" + strType);
+                self.columnList.append("mammalia_iucn_threatened_" + strType + "_names");
+            if (strStatus == self.str_EN_PELIGRO_DE_EXTINCION):
+                self.columnList.append("mammalia_lcvs_pe_" + strType);
+                self.columnList.append("mammalia_lcvs_pe_" + strType + "_names");
+            if (strStatus == self.str_CON_POBLACION_REDUCIDA):
+                self.columnList.append("mammalia_lcvs_pr_" + strType);
+                self.columnList.append("mammalia_lcvs_pr_" + strType + "_names");
+        if (strClass == self.str_PLANTAE):
+            if (strStatus == '--'):
+                self.columnList.append("plantae_" + strType);
+                self.columnList.append("plantae_" + strType + "_names");
+            if (strStatus == self.str_AMENAZADAS_UICN):
+                self.columnList.append("plantae_iucn_threatened_" + strType);
+                self.columnList.append("plantae_iucn_threatened_" + strType + "_names");
+            if (strStatus == self.str_EN_PELIGRO_DE_EXTINCION):
+                self.columnList.append("plantae_lcvs_pe_" + strType);
+                self.columnList.append("plantae_lcvs_pe_" + strType + "_names");
+            if (strStatus == self.str_CON_POBLACION_REDUCIDA):
+                self.columnList.append("plantae_lcvs_pr_" + strType);
+                self.columnList.append("plantae_lcvs_pr_" + strType + "_names");
+            if (strStatus == self.str_VEDADA):
+                self.columnList.append("plantae_lcvs_ve_" + strType);
+                self.columnList.append("plantae_lcvs_ve_" + strType + "_names");
+        if (strClass == self.str_REPTILIA):
+            if (strStatus == '--'):
+                self.columnList.append("reptilia_" + strType);
+                self.columnList.append("reptilia_" + strType + "_names");
+            if (strStatus == self.str_AMENAZADAS_UICN):
+                self.columnList.append("reptilia_iucn_threatened_" + strType);
+                self.columnList.append("reptilia_iucn_threatened_" + strType + "_names");
+            if (strStatus == self.str_EN_PELIGRO_DE_EXTINCION):
+                self.columnList.append("reptilia_lcvs_pe_" + strType);
+                self.columnList.append("reptilia_lcvs_pe_" + strType + "_names");
+            if (strStatus == self.str_CON_POBLACION_REDUCIDA):
+                self.columnList.append("reptilia_lcvs_pr_" + strType);
+                self.columnList.append("reptilia_lcvs_pr_" + strType + "_names");
+
+
+
+    def chooseClassInclude(self):
+        for selectedItem in self.list_class_pre.selectedItems():
+            self.seleccionClass = self.list_class_pre.currentItem().text();
+            self.seleccionTipo = self.list_tipo_pre.currentItem().text();
+            self.seleccionAmenaza = self.list_amenazas_pre.currentItem().text();
+
+            self.rellenarText(self.str_TOTAL);
+            self.rellenarText(self.str_AMPHIBIA);
+            self.rellenarText(self.str_AVES);
+            self.rellenarText(self.str_MAMMALIA);
+            self.rellenarText(self.str_PLANTAE);
+            self.rellenarText(self.str_REPTILIA);
+
+
+            #self.list_class_post.addItem(self.list_class_pre.currentItem().text())
+            #self.list_class_pre.takeItem(self.list_class_pre.row(selectedItem))
+
+    def chooseClassExclude(self):
+        for selectedItem in self.list_class_post.selectedItems():
+            self.list_class_pre.addItem(self.list_class_post.currentItem().text())
+            self.list_class_post.takeItem(self.list_class_post.row(selectedItem))
+
+
+
+
+
+
     def cargarTabla(self):
 
 
-        self.columnList.clear()
+
 
         ###############################################################################
         ### VALIDACIONES
