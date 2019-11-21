@@ -1,1 +1,3 @@
-Este complemento de QGIS 3 permite estimar y comparar la biodiversidad en 醨eas seleccionadas.
+# Complemento de QGIS: herramienta para estimaci贸n de biodiversidad
+
+La herramienta **Estimaci贸n de Biodiversidad**, es un complemento de [QGIS](https://qgis.org/) desarrollado para ser utilizado, en primera instancia, en un proceso de an谩lisis y comercializaci贸n del servicio de protecci贸n de biodiversidad en fincas con contrato de [Pago por Servicios Ambientales (PSA)](https://www.fonafifo.go.cr/es/servicios/pago-de-servicios-ambientales/) del [Fondo Nacional de Financiamiento Forestal (Fonafifo)](https://www.fonafifo.go.cr/es/servicios/pago-de-servicios-ambientales/). Adicionalmente, podr铆a ser utilizado en actividades de monitoreo, de priorizaci贸n de zonas para el desarrollo de acciones de control, de manejo o de intervenci贸n, entre otras.
